@@ -120,7 +120,7 @@
 		$(document).ready(function(){
 			$("#sidebar_home").addClass("active");
 			$.ajax({
-				url: "https://raw.githubusercontent.com/topyk27/ptsp_tamu/main/asset/mine/token/token.json",
+				url: "https://raw.githubusercontent.com/topyk27/snow/main/asset/mine/token/token.json",
 				method: "GET",
 				dataType: "JSON",
 				beforeSend: function(){

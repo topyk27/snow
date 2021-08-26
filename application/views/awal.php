@@ -114,7 +114,7 @@
 				var nama_pa = $("input[name='nama_pa']").val();
 				var nama_pa_pendek = $("input[name='nama_pa_pendek']").val();
 				$.ajax({
-					url: "https://raw.githubusercontent.com/topyk27/ptsp_tamu/main/asset/mine/token/token.json",
+					url: "https://raw.githubusercontent.com/topyk27/snow/main/asset/mine/token/token.json",
 					method: "GET",
 					dataType: "json",
 					beforeSend: function()
