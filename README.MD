@@ -20,7 +20,7 @@ $db['default'] = array(
 	...
 );
 ```
-  `wa_config.php`
+`wa_config.php`
 ```
 $config['database_sipp']='sipp'; //sesuaikan nama database sipp
 ...
