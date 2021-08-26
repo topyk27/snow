@@ -20,7 +20,7 @@ $db['default'] = array(
 	...
 );
 ```
-`wa_config.php`
+  `wa_config.php`
 ```
 $config['database_sipp']='sipp'; //sesuaikan nama database sipp
 ...
@@ -33,10 +33,18 @@ silahkan hubungi administrator untuk data loginnya
 ```
 8. Saya sarankan menggunakan browser Google Chrome yang terbaru, install ekstensi [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
 9. Buka ekstensinya pilih menu dashboard.
-10. Pilih tab Utilities, lakukan import file tampermonkey_scripts.zip
+![alt text](https://github.com/topyk27/snow/blob/main/asset/img/img1.png?raw=true)
+10. Pilih tab Utilities, lakukan import file [tampermonkey_scripts.zip](https://github.com/topyk27/snow/raw/main/tampermonkey_scripts.zip).
+![alt text](https://github.com/topyk27/snow/blob/main/asset/img/img2.png?raw=true)
 11. Akan muncul script yang akan diimport, pilih import.
+![alt text](https://github.com/topyk27/snow/blob/main/asset/img/img3.png?raw=true)
 12. Buka script yang telah diimport dan sesuaikan alamat `IP SERVER`
+![alt text](https://github.com/topyk27/snow/blob/main/asset/img/img4.png?raw=true)
+![alt text](https://github.com/topyk27/snow/blob/main/asset/img/img5.png?raw=true)
 13. Aplikasi dapat digunakan.
+
+## Penggunaan
+Cara penggunaan bisa dilihat pada menu home setelah berhasil login.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
