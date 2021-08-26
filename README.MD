@@ -32,7 +32,7 @@ sesuaikan konfigurasi anda
 silahkan hubungi administrator untuk data loginnya
 ```
 8. Saya sarankan menggunakan browser Google Chrome yang terbaru, install ekstensi [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
-9. Buka ekstensinya pilih menu dashboard.
+9. Buka ekstensinya pilih menu dashboard.  
 ![alt text](https://github.com/topyk27/snow/blob/main/asset/img/img1.png?raw=true)
 10. Pilih tab Utilities, lakukan import file [tampermonkey_scripts.zip](https://github.com/topyk27/snow/raw/main/tampermonkey_scripts.zip).
 ![alt text](https://github.com/topyk27/snow/blob/main/asset/img/img2.png?raw=true)
