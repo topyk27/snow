@@ -215,6 +215,7 @@ class M_waku extends CI_Model
         $mulai=$this->config->item('mulai_tgl_ac','wa_config');
         $jarak=$this->config->item('mulai_notif_ac','wa_config');
         $web=$this->config->item('web_drivethru','wa_config');
+        // pihak P
         try {
             $kweri_akta = $this->db->query("
                                             select a.perkara_id,a.nomor_perkara,j.tgl_akta_cerai,DATE_FORMAT(j.tgl_akta_cerai,'%d/%m/%Y') as tgl_ac,j.nomor_akta_cerai,a.jenis_perkara_nama,b.pihak_id,b.nama as namap,d.telepon as telp1
@@ -237,7 +238,42 @@ class M_waku extends CI_Model
                     $cari=array("#noperk#","#tgl_ac#","#nomor_ac","#nama_pa#");
                     $ganti=array($row->nomor_perkara,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
-                    $pesan .= $web.$row->nomor_perkara;
+                    $pesan .= $web.'p/'.$row->nomor_perkara;
+                    $telp1 = $this->_nomor_hp_indo($row->telp1);
+                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp1','$pesan','wa')");
+                    $tanggals = date("Y-m-d H:i:s");
+                    
+                    $this->db->query("insert into waku.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pihak_id,'".str_replace("'","''",$row->namap)."','$row->telp1','$pesan','$tanggals')");
+                    $pesan_akta[]=$pesan;
+                }
+            }
+        } catch (Exception $e) {
+
+        }
+        // pihak T
+        try {
+            $kweri_akta = $this->db->query("
+                                            select a.perkara_id,a.nomor_perkara,j.tgl_akta_cerai,DATE_FORMAT(j.tgl_akta_cerai,'%d/%m/%Y') as tgl_ac,j.nomor_akta_cerai,a.jenis_perkara_nama,b.pihak_id,b.nama as namap,d.telepon as telp1
+                                            from $this->database.perkara_akta_cerai j
+                                            left join $this->database.perkara a 
+                                            on j.perkara_id=a.perkara_id
+                                            left join $this->database.perkara_pihak2 b
+                                            on a.perkara_id=b.perkara_id
+                                            left join $this->database.pihak d
+                                            on b.pihak_id=d.id
+                                            left join waku.akta_cerai z
+                                            on a.perkara_id=z.perkara_id and b.pihak_id=z.nama_id
+                                            where j.tgl_akta_cerai > '".$mulai."' and datediff(curdate(),j.tgl_akta_cerai) >=$jarak  and j.nomor_akta_cerai is not null and (d.telepon is not null and d.telepon<>'') and z.perkara_id is null
+
+                                            ");
+
+            if ($kweri_akta->num_rows() > 0) {
+
+                foreach ($kweri_akta->result() as $row) {
+                    $cari=array("#noperk#","#tgl_ac#","#nomor_ac","#nama_pa#");
+                    $ganti=array($row->nomor_perkara,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
+                    $pesan=str_replace($cari,$ganti,$template[2]);
+                    $pesan .= $web.'t/'.$row->nomor_perkara;
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
                     $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp1','$pesan','wa')");
                     $tanggals = date("Y-m-d H:i:s");

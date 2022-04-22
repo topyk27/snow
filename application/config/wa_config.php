@@ -7,10 +7,10 @@ $config['version'] = '1.0.0';
 /*
 konfigurasi dibawah ini setting awal yang akan dimulai dinotifikasi;
 */
-$config['mulai_tgl_daftar']='2021-07-01'; //mulai sejak tanggal akan di notifikasi format tanggal= 'tahun-bulan-tanggal' atau 'Y-m-d';
-$config['mulai_tgl_ac']='2021-07-01'; //mulai sejak tanggal [mulai_tgl_ac] notifikasi akan dikirim, format tanggal= 'tahun-bulan-tanggal' atau 'Y-m-d', tanggal dan bulan format 2 digit
+$config['mulai_tgl_daftar']='2023-01-01'; //mulai sejak tanggal akan di notifikasi format tanggal= 'tahun-bulan-tanggal' atau 'Y-m-d';
+$config['mulai_tgl_ac']='2022-04-01'; //mulai sejak tanggal [mulai_tgl_ac] notifikasi akan dikirim, format tanggal= 'tahun-bulan-tanggal' atau 'Y-m-d', tanggal dan bulan format 2 digit
 $config['mulai_notif_ac']=3; //artinya notifikasi akan dikirim setelah [mulai_notif_ac] hari dari tanggal AC;
-$config['mulai_tahun_psp']=2021; // mulai tahun psp akan di notifikasi;
-$config['mulai_tahun_notifsipp']=2021; //mulai data sipp tahun akan dinotifikasi;
+$config['mulai_tahun_psp']=2023; // mulai tahun psp akan di notifikasi;
+$config['mulai_tahun_notifsipp']=2023; //mulai data sipp tahun akan dinotifikasi;
 
  ?>
