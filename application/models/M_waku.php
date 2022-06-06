@@ -12,6 +12,7 @@ class M_waku extends CI_Model
 		parent::__construct();
         $this->config->load('wa_config',TRUE);
         $this->database=$this->config->item('database_sipp','wa_config');
+        $this->dbwa=$this->config->item('database_wa','wa_config');
         $row=$this->db->query("select * from $this->database.sys_config where id=61")->row();
         $this->kodepa=$row->value;
         $this->tahunpsp=$this->config->item('mulai_tahun_psp','wa_config');
@@ -810,6 +811,52 @@ class M_waku extends CI_Model
         }
 
         return $pesan_sidang;
+    }
+
+    function _putus($template)
+    {
+        $pesan_putus=[];
+        $tahunnotif = $this->config->item('mulai_tahun_notifsipp', 'wa_config');
+        try {
+            $putus = $this->db->query("SELECT a.perkara_id, a.nomor_perkara, b.tanggal_putusan AS tgl_putus, j.jurusita_id, p.perkara_id AS pts_perkara_id FROM $this->database.perkara_jurusita j, $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.putus p ON a.perkara_id=p.perkara_id AND b.tanggal_putusan=p.tgl_putus WHERE j.perkara_id=a.perkara_id AND (b.tanggal_putusan IS NOT NULL) AND YEAR(tanggal_putusan) >= $tahunnotif AND DATEDIFF(CURDATE(), b.tanggal_putusan) >= 0 AND p.perkara_id IS NULL ORDER BY b.tanggal_putusan ASC ");
+            // return $this->db->last_query();
+            if($putus->num_rows() > 0)
+            {
+                $perk = [];
+                $hp_kasir = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE jabatan='kasir'")->row();
+                $hp_kasir = $this->_nomor_hp_indo($hp_kasir->nomorhp);
+                foreach($putus->result() as $row)
+                {
+                    $noperk = explode("/",$row->nomor_perkara);
+                    if($noperk[1]=='Pdt.G')
+                    {
+                        $jenis = 'Gugatan';
+                    }
+                    else if ($noperk[1]=='Pdt.P')
+                    {
+                        $jenis = 'Permohonan';
+                    }
+                    else
+                    {
+                        $jenis = '?';
+                    }
+                    $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
+                    $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
+                    $cari = array("#jenis#","#noperk#","#tgl_putus#");
+                    $ganti = array($jenis,$row->nomor_perkara,$this->_tgl_indo($row->tgl_putus));
+                    $pesan = str_replace($cari,$ganti,$template[12]);
+                    $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID) VALUES ('$hp_js', '$pesan', 'wa')");
+                    $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID) VALUES ('$hp_kasir', '$pesan', 'wa')");
+                    // $tanggals = date("Y-m-d H:i:s");                    
+                    $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_js,'$pesan',NOW())");
+                    $pesan_putus[] = $pesan;
+                }
+            }
+            
+        } catch (Exception $e) {
+            
+        }
+        return $pesan_putus;
     }
 
     function _notifikasisipp()

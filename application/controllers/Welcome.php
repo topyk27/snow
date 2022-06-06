@@ -22,6 +22,7 @@ class Welcome extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->model("m_login");
+		$this->load->model("m_waku");
 	}
 	
 	public function index()
@@ -35,5 +36,11 @@ class Welcome extends CI_Controller {
 		{
 			redirect(base_url('login'));
 		}
+	}
+
+	public function tes()
+	{
+		$template_wa=$this->m_waku->template_pesan();
+		echo json_encode($this->m_waku->_putus($template_wa));
 	}
 }
