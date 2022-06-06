@@ -279,11 +279,124 @@
 				}
 			});
 		}
+		
+		function testing()
+		{
+			$.ajax(
+				{
+					type: 'get',
+					url: "<?php echo base_url('waku/testing'); ?>",
+					dataType: 'json',
+					success: function(data)
+					{
+						let d = data[0];
+						let hari_ini = new Date();
+						let pesan = "SNOW "+ d.nama_pa + " "+hari_ini;
+						let sukses = false;
+						let no = d.no_testing;
+						$.ajax({
+							type: 'post',
+							url: "<?php echo base_url('waku/insert_testing'); ?>",
+							data: {pesan:pesan,no:no},
+							dataType: 'json',
+							beforeSend: function()
+							{
+								console.log('kirim testing');
+							},
+							success: function(data)
+							{
+								console.log(data);								
+								if(data.status=="ok")
+								{
+									sukses=true;
+								}
+								else if(data.status=="error")
+								{
+									sukses=false;
+								}
+								else if(data.status=="menunggu")	
+								{
+									let url = "https://web.whatsapp.com/send?phone=";
+									let id = data.id;
+									update_testing(id);
+									window.open(url+no+"&text="+pesan);									
+								}
+							},
+							error: function(err)
+							{
+								console.log(err.responseText);
+							},
+							complete: function()
+							{
+								if(sukses)
+								{
+									getPesan();
+								}
+							}
+						});						
+					}
+				}
+			);
+		}
+
+		function update_testing(id)
+		{
+			$.ajax(
+				{
+					type: "POST",
+					url: "<?php echo base_url('waku/cek_testing'); ?>",
+					data: {id: id},
+					dataType: "TEXT",
+					beforeSend: function(){
+						console.log("mau cek terkirim "+id);
+					},
+					success: function(data)
+					{
+						
+						console.log(data);
+						if(data=="ok")
+						{
+							getPesan();
+						}
+						else if(data=="error")
+						{
+							$(document).Toasts('create', {
+							class: 'bg-danger',
+							title: 'Gagal kirim pesan',
+							subtitle: 'Error',
+							body: 'Pastikan wa web terbuka sepenuhnya, atau dimatikan terlebih dahulu extensi tampermonkey'
+							});
+							// deletePesan(id);
+						}
+						else
+						{
+							setTimeout(function(){
+								update_testing(id);
+							}, 10000);
+						}
+					},
+					error: function(err)
+					{
+						$(document).Toasts('create', {
+						class: 'bg-danger',
+						title: 'Gagal ambil status pesan',
+						subtitle: 'Error',
+						body: 'Pastikan tab whatsapp terbuka dan pesan berhasil dikirim.'
+						});
+						console.log(err);
+						setTimeout(function(){
+							update_testing(id);
+						}, 10000);
+					}
+				}
+			);
+		}
 		$("document").ready(function(){
 			$("#sidebar_kirim").addClass("active");
 			var tgl = new Date();
 			$("span.bg-red").append(tgl.toLocaleTimeString());
-			getPesan();
+			// getPesan();
+			testing();
 		});
 	</script>
 </body>

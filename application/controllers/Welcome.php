@@ -38,9 +38,9 @@ class Welcome extends CI_Controller {
 		}
 	}
 
-	public function tes()
-	{
-		$template_wa=$this->m_waku->template_pesan();
-		echo json_encode($this->m_waku->_putus($template_wa));
-	}
+	// public function tes()
+	// {
+	// 	$template_wa=$this->m_waku->template_pesan();
+	// 	echo json_encode($this->m_waku->putus($template_wa));
+	// }
 }

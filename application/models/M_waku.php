@@ -86,6 +86,18 @@ class M_waku extends CI_Model
         return $this->pesans;
     }
 
+    public function putus($template)
+    {
+        $this->pesans[]=$this->_putus($template);
+        return $this->pesans;
+    }
+
+    public function tunda_sidang($template)
+    {
+        $this->pesans[]=$this->_tunda_sidang($template);
+        return $this->pesans;
+    }
+
     function _tgl_indo($tanggal)
     {
         $bulan = array(
@@ -813,21 +825,58 @@ class M_waku extends CI_Model
         return $pesan_sidang;
     }
 
+    function _tunda_sidang($template)
+    {
+        $pesan_tunda_sidang = [];
+        try {
+            $tunda_sidang = $this->db->query("SELECT a.tanggal_sidang, a.urutan as sidangke,a.perkara_id,b.nomor_perkara,b.jenis_perkara_nama, c.perkara_id AS perkara_id_sidang, d.efiling_id, d.nomor_register as nomor_ecourt, j.jurusita_id, j.jurusita_nama FROM $this->database.perkara_jurusita j,$this->database.perkara_jadwal_sidang a LEFT JOIN $this->database.perkara b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.sidang_jurusita c ON a.perkara_id=c.perkara_id AND a.tanggal_sidang=c.tanggal_sidang LEFT JOIN $this->database.perkara_efiling d ON b.nomor_perkara=d.nomor_perkara WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null AND j.perkara_id=b.perkara_id ");
+            // return $this->db->last_query();
+            if($tunda_sidang->num_rows() > 0)
+            {
+                foreach($tunda_sidang->result() as $row)
+                {
+                    $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
+                    $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
+                    if(isset($row->efiling_id))
+                    {
+                        $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang);
+                        $ecourt = 1;                        
+                    }
+                    else
+                    {
+                        $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang);
+                        $ecourt = 0;
+                    }
+                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$hp_js',  '$pesan','wa')");
+                    $tanggals = date("Y-m-d H:i:s");
+                    $this->db->query("insert into $this->dbwa.sidang_jurusita(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,jurusita_nama,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'$row->nomor_ecourt','".str_replace("'","''",$row->jurusita_nama)."','$hp_js','$tanggals','$pesan')");
+                    $pesan_tunda_sidang[]=$pesan;
+                }
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+        return $pesan_tunda_sidang;
+    }
+
     function _putus($template)
     {
         $pesan_putus=[];
         $tahunnotif = $this->config->item('mulai_tahun_notifsipp', 'wa_config');
         try {
-            $putus = $this->db->query("SELECT a.perkara_id, a.nomor_perkara, b.tanggal_putusan AS tgl_putus, j.jurusita_id, p.perkara_id AS pts_perkara_id FROM $this->database.perkara_jurusita j, $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.putus p ON a.perkara_id=p.perkara_id AND b.tanggal_putusan=p.tgl_putus WHERE j.perkara_id=a.perkara_id AND (b.tanggal_putusan IS NOT NULL) AND YEAR(tanggal_putusan) >= $tahunnotif AND DATEDIFF(CURDATE(), b.tanggal_putusan) >= 0 AND p.perkara_id IS NULL ORDER BY b.tanggal_putusan ASC ");
+            $putus = $this->db->query("SELECT a.perkara_id, a.nomor_perkara, b.tanggal_putusan AS tgl_putus, j.jurusita_id, j.jurusita_nama, p.perkara_id AS pts_perkara_id FROM $this->database.perkara_jurusita j, $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.putus p ON a.perkara_id=p.perkara_id AND b.tanggal_putusan=p.tgl_putus WHERE j.perkara_id=a.perkara_id AND (b.tanggal_putusan IS NOT NULL) AND YEAR(tanggal_putusan) >= $tahunnotif AND DATEDIFF(CURDATE(), b.tanggal_putusan) >= 0 AND p.perkara_id IS NULL ORDER BY b.tanggal_putusan ASC ");
             // return $this->db->last_query();
             if($putus->num_rows() > 0)
             {
                 $perk = [];
-                $hp_kasir = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE jabatan='kasir'")->row();
-                $hp_kasir = $this->_nomor_hp_indo($hp_kasir->nomorhp);
+                $kasir = $this->db->query("SELECT nomorhp, nama FROM $this->dbwa.daftar_kontak WHERE jabatan='kasir'")->row();                
+                $hp_kasir = $this->_nomor_hp_indo($kasir->nomorhp);
                 foreach($putus->result() as $row)
                 {
+                    $nama = $kasir->nama;
+                    $nama.=' (kasir)';
                     $noperk = explode("/",$row->nomor_perkara);
+                    $jenis = '';
                     if($noperk[1]=='Pdt.G')
                     {
                         $jenis = 'Gugatan';
@@ -840,15 +889,22 @@ class M_waku extends CI_Model
                     {
                         $jenis = '?';
                     }
-                    $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
-                    $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
                     $cari = array("#jenis#","#noperk#","#tgl_putus#");
                     $ganti = array($jenis,$row->nomor_perkara,$this->_tgl_indo($row->tgl_putus));
                     $pesan = str_replace($cari,$ganti,$template[12]);
-                    $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID) VALUES ('$hp_js', '$pesan', 'wa')");
                     $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID) VALUES ('$hp_kasir', '$pesan', 'wa')");
-                    // $tanggals = date("Y-m-d H:i:s");                    
-                    $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_js,'$pesan',NOW())");
+                    $no_dikirim = $hp_kasir;
+                    if($jenis=='Gugatan')                    
+                    {
+                        $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
+                        $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
+                        $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID) VALUES ('$hp_js', '$pesan', 'wa')");
+                        $no_dikirim = $hp_js;
+                        $nama = $row->jurusita_nama;
+                    }
+                    // $tanggals = date("Y-m-d H:i:s");
+
+                    $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$no_dikirim,'$nama','$pesan',NOW())");
                     $pesan_putus[] = $pesan;
                 }
             }

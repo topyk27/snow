@@ -88,6 +88,23 @@ class Waku extends CI_Controller
 		$id = $this->input->post('id');
 		return $this->m_outbox->deletePesan($id);
 	}
+
+	public function testing()
+	{
+		echo $this->m_outbox->testing();
+	}
+
+	public function insert_testing()
+	{
+		// return $this->m_outbox->insert_testing();
+		echo $this->m_outbox->insert_testing();
+	}
+
+	public function cek_testing()
+	{
+		$id = $this->input->post('id');
+		echo $this->m_outbox->cek_testing($id);
+	}
 }
 
  ?>

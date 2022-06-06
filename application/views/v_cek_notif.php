@@ -96,7 +96,9 @@
 		$(document).ready(function(){
 			$("#sidebar_cek_notif").addClass("active");
 			var no = 0;
-			get_pesan("sidang");
+			// get_pesan("sidang");
+			get_pesan("putus");			
+
 			function get_pesan(jenis)
 			{
 				sukses = true;
@@ -162,77 +164,95 @@
 						{
 							switch(jenis)
 							{
-								case "sidang" :
-								$(document).Toasts('create', {
-								  class: 'bg-success',
-								  title: 'Berhasil ambil data',
-								  subtitle: "sidang",
-								  body: 'Selanjutnya ambil data notifikasi SIPP'
-								});
-								get_pesan("notifikasisipp");
-								break;
+								// case "sidang" :
+								// $(document).Toasts('create', {
+								//   class: 'bg-success',
+								//   title: 'Berhasil ambil data',
+								//   subtitle: "sidang",
+								//   body: 'Selanjutnya ambil data notifikasi SIPP'
+								// });
+								// get_pesan("notifikasisipp");
+								// break;
 
-								case "notifikasisipp" :
-								$(document).Toasts('create', {
-								  class: 'bg-success',
-								  title: 'Berhasil ambil data',
-								  subtitle: 'notifikasi SIPP',
-								  body: 'Selanjutnya ambil data notifikasi pendaftaran'
-								});
-								get_pesan("daftar");
-								break;
+								// case "notifikasisipp" :
+								// $(document).Toasts('create', {
+								//   class: 'bg-success',
+								//   title: 'Berhasil ambil data',
+								//   subtitle: 'notifikasi SIPP',
+								//   body: 'Selanjutnya ambil data notifikasi pendaftaran'
+								// });
+								// get_pesan("daftar");
+								// break;
 
-								case "daftar" :
-								$(document).Toasts('create', {
-								  class: 'bg-success',
-								  title: 'Berhasil ambil data',
-								  subtitle: 'pendaftaran',
-								  body: 'Selanjutnya ambil data notifikasi pendaftaran E-Court'
-								});
-								get_pesan("daftar_ecourt");
-								break;
+								// case "daftar" :
+								// $(document).Toasts('create', {
+								//   class: 'bg-success',
+								//   title: 'Berhasil ambil data',
+								//   subtitle: 'pendaftaran',
+								//   body: 'Selanjutnya ambil data notifikasi pendaftaran E-Court'
+								// });
+								// get_pesan("daftar_ecourt");
+								// break;
 
-								case "daftar_ecourt" :
-								$(document).Toasts('create', {
-								  class: 'bg-success',
-								  title: 'Berhasil ambil data',
-								  subtitle: 'pendaftaran E-Court',
-								  body: 'Selanjutnya ambil data notifikasi akta cerai'
-								});
-								get_pesan("akta");
-								break;
+								// case "daftar_ecourt" :
+								// $(document).Toasts('create', {
+								//   class: 'bg-success',
+								//   title: 'Berhasil ambil data',
+								//   subtitle: 'pendaftaran E-Court',
+								//   body: 'Selanjutnya ambil data notifikasi akta cerai'
+								// });
+								// get_pesan("akta");
+								// break;
 
-								case "akta" :
-								$(document).Toasts('create', {
-								  class: 'bg-success',
-								  title: 'Berhasil ambil data',
-								  subtitle: 'akta cerai',
-								  body: 'Selanjutnya ambil data notifikasi akta cerai pengacara'
-								});
-								get_pesan("akta_pengacara");
-								break;
+								// case "akta" :
+								// $(document).Toasts('create', {
+								//   class: 'bg-success',
+								//   title: 'Berhasil ambil data',
+								//   subtitle: 'akta cerai',
+								//   body: 'Selanjutnya ambil data notifikasi akta cerai pengacara'
+								// });
+								// get_pesan("akta_pengacara");
+								// break;
 
-								case "akta_pengacara" :
-								$(document).Toasts('create', {
-								  class: 'bg-success',
-								  title: 'Berhasil ambil data',
-								  subtitle: 'akta cerai pengacara',
-								  body: 'Selanjutnya ambil data notifikasi PSP'
-								});
-								get_pesan("psp");
-								break;
+								// case "akta_pengacara" :
+								// $(document).Toasts('create', {
+								//   class: 'bg-success',
+								//   title: 'Berhasil ambil data',
+								//   subtitle: 'akta cerai pengacara',
+								//   body: 'Selanjutnya ambil data notifikasi PSP'
+								// });
+								// get_pesan("psp");
+								// break;
 
-								case "psp" :
+								// case "psp" :
+								// $(document).Toasts('create', {
+								//   class: 'bg-success',
+								//   title: 'Berhasil ambil',
+								//   subtitle: "PSP",
+								//   body: 'Selanjutnya ambil data perkara putus'
+								// });
+								// get_pesan("putus");
+								// break;
+
+								case "putus" :
 								$(document).Toasts('create', {
-								  class: 'bg-success',
-								  title: 'Berhasil ambil',
-								  subtitle: "PSP",
-								  body: 'Beralih ke halaman kirim notifikasi'
+									class: 'bg-success',
+									title: 'Berhasil ambil',
+									subtitle: "Perkara Putus",
+									body: 'Selanjutnya ambil data tunda sidang'
+								});
+								get_pesan("tunda_sidang");
+								case "tunda_sidang" :
+								$(document).Toasts('create', {
+									class: 'bg-success',
+									title: 'Berhasil ambil',
+									subtitle: "Tunda Sidang",
+									body: 'Selanjutnya beralih ke halaman kirim'
 								});
 								setTimeout(function(){
 									window.location.replace("<?php echo base_url('waku/kirim'); ?>");
 								});
-
+								break;
 							}
 						}
 					}
