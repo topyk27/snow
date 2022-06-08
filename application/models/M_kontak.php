@@ -15,7 +15,7 @@ class M_kontak extends CI_Model
 
 	public function getJabatan($jabatan)
 	{
-		$statement;
+		$statement = '';
 		switch ($jabatan) {
 			case 'ketua':
 			case 'wakil':
@@ -27,9 +27,12 @@ class M_kontak extends CI_Model
 			case 'pp':
 				$statement = "SELECT a.id, a.nama_gelar FROM $this->database.panitera_pn a WHERE a.aktif = 'Y' AND NOT EXISTS (SELECT id, nama_gelar from waku.daftar_kontak d where a.id = d.id AND a.nama_gelar = d.nama) ORDER BY nama_gelar";
 				break;
-			default:
+			case 'jurusita':
 				$statement = "SELECT a.id, a.nama_gelar FROM $this->database.jurusita a WHERE a.aktif = 'Y' AND NOT EXISTS (SELECT id, nama_gelar from waku.daftar_kontak d where a.id = d.id AND a.nama_gelar = d.nama) ORDER BY nama_gelar";
 				break;
+			// default:
+			// 	$statement = "SELECT a.id, a.nama_gelar FROM $this->database.jurusita a WHERE a.aktif = 'Y' AND NOT EXISTS (SELECT id, nama_gelar from waku.daftar_kontak d where a.id = d.id AND a.nama_gelar = d.nama) ORDER BY nama_gelar";
+			// 	break;
 		}
 		$query = $this->db->query($statement);
 		return $query->result();

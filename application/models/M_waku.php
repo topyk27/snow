@@ -829,7 +829,7 @@ class M_waku extends CI_Model
     {
         $pesan_tunda_sidang = [];
         try {
-            $tunda_sidang = $this->db->query("SELECT a.tanggal_sidang, a.urutan as sidangke,a.perkara_id,b.nomor_perkara,b.jenis_perkara_nama, c.perkara_id AS perkara_id_sidang, d.efiling_id, d.nomor_register as nomor_ecourt, j.jurusita_id, j.jurusita_nama FROM $this->database.perkara_jurusita j,$this->database.perkara_jadwal_sidang a LEFT JOIN $this->database.perkara b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.sidang_jurusita c ON a.perkara_id=c.perkara_id AND a.tanggal_sidang=c.tanggal_sidang LEFT JOIN $this->database.perkara_efiling d ON b.nomor_perkara=d.nomor_perkara WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null AND j.perkara_id=b.perkara_id ");
+            $tunda_sidang = $this->db->query("SELECT a.tanggal_sidang, a.urutan as sidangke,a.perkara_id,a.agenda,b.nomor_perkara,b.jenis_perkara_nama, c.perkara_id AS perkara_id_sidang, d.efiling_id, d.nomor_register as nomor_ecourt, j.jurusita_id, j.jurusita_nama FROM $this->database.perkara_jurusita j,$this->database.perkara_jadwal_sidang a LEFT JOIN $this->database.perkara b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.sidang_jurusita c ON a.perkara_id=c.perkara_id AND a.tanggal_sidang=c.tanggal_sidang LEFT JOIN $this->database.perkara_efiling d ON b.nomor_perkara=d.nomor_perkara WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null AND j.perkara_id=b.perkara_id ");
             // return $this->db->last_query();
             if($tunda_sidang->num_rows() > 0)
             {
@@ -837,14 +837,36 @@ class M_waku extends CI_Model
                 {
                     $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
                     $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
+                    $alasan_tunda = "";
+                    if($row->sidangke>1)
+                    {
+                        $ditunda = $this->db->query("SELECT alasan_ditunda FROM $this->database.perkara_jadwal_sidang WHERE perkara_id=$row->perkara_id AND urutan=($row->sidangke-1)")->row();
+                        // return $this->db->last_query();
+                        $alasan_tunda = $ditunda->alasan_ditunda;                     
+                    }
+
                     if(isset($row->efiling_id))
                     {
-                        $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang);
+                        if(empty($alasan_tunda))
+                        {
+                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda;
+                        }
+                        else
+                        {
+                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda;
+                        }
                         $ecourt = 1;                        
                     }
                     else
                     {
-                        $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang);
+                        if(empty($alasan_tunda))
+                        {
+                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda;
+                        }
+                        else
+                        {
+                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda;
+                        }
                         $ecourt = 0;
                     }
                     $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$hp_js',  '$pesan','wa')");

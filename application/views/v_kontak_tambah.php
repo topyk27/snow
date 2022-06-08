@@ -61,6 +61,7 @@
 												<option value="panitera">Panitera</option>
 												<option value="pp">Panitera Pengganti</option>
 												<option value="jurusita">Jurusita</option>
+												<option value="kasir">Kasir</option>
 											</select>
 										</div>
 										<div class="form-group">
@@ -68,6 +69,7 @@
 											<select id="nama" name="nama" class="form-control" style="width: 100%;" required>
 												
 											</select>
+											<input type="text" name="nama" class="form-control w-100" style="display: none;" disabled>
 										</div>
 										<div class="form-group">
 											<label>Nomor HP</label>
@@ -130,28 +132,43 @@
 				var jabatan = this.value;
 				if(jabatan!="babu")
 				{
-					$.ajax({
-						type: 'POST',
-						url: "<?php echo base_url('kontak/getjabatan'); ?>",
-						data: {jabatan: jabatan},
-						dataType: 'json',
-						success: function(data)
-						{
-							$("select#nama").children().remove();
-							$("select#nama").append("<option value='babi'>Pilih Pegawai</option>");
-							$.each(data['jabatan'], function(k,v){
-								$("select#nama").append("<option value='"+v.nama_gelar+"#"+v.id+"'>"+v.nama_gelar+"</option>");
-							});
-						},
-						error: function(err)
-						{
-							console.log(err);
-						},
-						complete: function()
-						{
-							
-						}
-					});
+					if(jabatan=="kasir")
+					{
+						$("select#nama").children().remove();
+						$("select#nama").prop("disabled",true);
+						$("select#nama").hide();
+						$("input[name='nama']").prop("disabled",false);
+						$("input[name='nama']").show();
+					}
+					else
+					{
+						$.ajax({
+							type: 'POST',
+							url: "<?php echo base_url('kontak/getjabatan'); ?>",
+							data: {jabatan: jabatan},
+							dataType: 'json',
+							success: function(data)
+							{
+								$("select#nama").prop("disabled",false);
+								$("select#nama").show();
+								$("select#nama").children().remove();
+								$("select#nama").append("<option value='babi'>Pilih Pegawai</option>");
+								$.each(data['jabatan'], function(k,v){
+									$("select#nama").append("<option value='"+v.nama_gelar+"#"+v.id+"'>"+v.nama_gelar+"</option>");
+								});
+								$("input[name='nama']").prop("disabled",true);
+								$("input[name='nama']").hide();
+							},
+							error: function(err)
+							{
+								console.log(err);
+							},
+							complete: function()
+							{
+								
+							}
+						});
+					}
 				}
 			});
 
