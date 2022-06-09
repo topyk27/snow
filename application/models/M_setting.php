@@ -59,7 +59,7 @@ class M_setting extends CI_Model
 		// $this->db->truncate("setting");
 		$statement1 = "TRUNCATE setting";
 		$this->db->query($statement1);
-		$statement = "INSERT INTO setting (token, nama_pa, nama_pa_pendek) VALUES ('$token', '$nama_pa', '$nama_pa_pendek') ";
+		$statement = "INSERT INTO setting (token, nama_pa, nama_pa_pendek, no_testing) VALUES ('$token', '$nama_pa', '$nama_pa_pendek', '6285250565427') ";
 		$this->db->query($statement);
 		return $this->db->affected_rows();
 	}

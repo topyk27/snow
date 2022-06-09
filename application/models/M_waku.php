@@ -895,8 +895,8 @@ class M_waku extends CI_Model
                 $hp_kasir = $this->_nomor_hp_indo($kasir->nomorhp);
                 foreach($putus->result() as $row)
                 {
-                    $nama = $kasir->nama;
-                    $nama.=' (kasir)';
+                    $nama_kasir = $kasir->nama;
+                    $nama_kasir.=' (kasir)';
                     $noperk = explode("/",$row->nomor_perkara);
                     $jenis = '';
                     if($noperk[1]=='Pdt.G')
@@ -915,18 +915,19 @@ class M_waku extends CI_Model
                     $ganti = array($jenis,$row->nomor_perkara,$this->_tgl_indo($row->tgl_putus));
                     $pesan = str_replace($cari,$ganti,$template[12]);
                     $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID) VALUES ('$hp_kasir', '$pesan', 'wa')");
-                    $no_dikirim = $hp_kasir;
+                    
                     if($jenis=='Gugatan')                    
                     {
                         $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
                         $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
                         $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID) VALUES ('$hp_js', '$pesan', 'wa')");
-                        $no_dikirim = $hp_js;
+                        
                         $nama = $row->jurusita_nama;
+                        $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_js,'$nama','$pesan',NOW())");
                     }
                     // $tanggals = date("Y-m-d H:i:s");
 
-                    $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$no_dikirim,'$nama','$pesan',NOW())");
+                    $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_kasir,'$nama_kasir','$pesan',NOW())");
                     $pesan_putus[] = $pesan;
                 }
             }

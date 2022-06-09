@@ -174,8 +174,8 @@
 	<!-- AdminLTE App -->
 	<script src="<?php echo base_url('asset/dist/js/adminlte.min.js'); ?>"></script>
 	<script type="text/javascript">
-		var ketua_sebagai = "<?php echo $ttd->ketua_sebagai; ?>";
-		var panitera_sebagai = "<?php echo $ttd->panitera_sebagai; ?>";
+		var ketua_sebagai = "<?php echo (isset($ttd->ketua_sebagai) ? $ttd->ketua_sebagai : ''); ?>";
+		var panitera_sebagai = "<?php echo (isset($ttd->panitera_sebagai) ? $ttd->panitera_sebagai : ''); ?>";
 		$(document).ready(function(){
 			$("#sidebar_setting").addClass("active");
 			$("#sidebar_setting_sistem").addClass("active");
@@ -196,7 +196,7 @@
 					},
 					dataType: 'json',
 					success: function(data)
-					{
+					{						
 						if(data.respon)
 						{
 							$("#respon").html("<div class='alert alert-success' role='alert' id='responMsg'>Data berhasil diubah</div>")
@@ -215,7 +215,7 @@
 					},
 					error: function(err)
 					{
-						console.log(err);
+						console.log(err.responseText);
 						$("#respon").html("<div class='alert alert-warning' role='alert' id='responMsg'>Data gagal diubah. Periksa koneksi internet anda.</div>")
 						$("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
 					},

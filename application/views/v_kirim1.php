@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="<?php echo base_url('asset/plugin/fontawesome-free/css/all.min.css') ?>">
 	<!-- AdminLTE css -->
 	<link rel="stylesheet" href="<?php echo base_url('asset/dist/css/adminlte.min.css') ?>">
+	<link rel="stylesheet" type="text/css" href="<?php echo base_url('asset/mine/css/loader.css'); ?>">
 </head>
 <body class="hold-transition sidebar-mini">
 	<!-- Site wrapper -->
@@ -75,7 +76,7 @@
 		<!-- /.content-wrapper -->
 
 		<?php $this->load->view("_partials/footer.php") ?>
-
+		<?php $this->load->view("_partials/loader.php") ?>
 		<!-- Control Sidebar -->
 		<aside class="control-sidebar control-sidebar-dark">
 			<!-- Control sidebar content goes here -->
@@ -92,9 +93,10 @@
 	<script src="<?php echo base_url('asset/dist/js/adminlte.min.js'); ?>"></script>
 	<!-- AdminLTE for demo purposes -->
 	<script src="<?php echo base_url('asset/dist/js/demo.js'); ?>"></script>
-
+	
 	<script type="text/javascript">
 		var sok_id;
+		let init = 0;
 		function getPesan()
 		{
 			let sukses;
@@ -225,7 +227,9 @@
 					if(sukses)
 					{
 						// $("#step").append("<p>Berhasil hapus pesan, ambil pesan baru lagi.</p>");
-						getPesan();
+						setTimeout(() => {
+							getPesan();
+						}, 5000);
 					}
 				}
 			});
@@ -294,6 +298,7 @@
 						let pesan = "SNOW "+ d.nama_pa + " "+hari_ini;
 						let sukses = false;
 						let no = d.no_testing;
+						let stts='entahlah';
 						$.ajax({
 							type: 'post',
 							url: "<?php echo base_url('waku/insert_testing'); ?>",
@@ -301,11 +306,11 @@
 							dataType: 'json',
 							beforeSend: function()
 							{
-								console.log('kirim testing');
+								$('.loader2').show();
 							},
 							success: function(data)
 							{
-								console.log(data);								
+								// console.log(data);								
 								if(data.status=="ok")
 								{
 									sukses=true;
@@ -318,6 +323,7 @@
 								{
 									let url = "https://web.whatsapp.com/send?phone=";
 									let id = data.id;
+									stts = 'menunggu';
 									update_testing(id);
 									window.open(url+no+"&text="+pesan);									
 								}
@@ -328,9 +334,57 @@
 							},
 							complete: function()
 							{
-								if(sukses)
+								if(stts!='menunggu')
 								{
-									getPesan();
+									if(sukses)
+									{
+										setTimeout(() => {
+											$('.loader2').hide();
+											getPesan();
+										}, 3000);
+									}
+									else if(!sukses && init==0)
+									{
+										init++;
+										setTimeout(() => {
+											$.ajax({
+												type:'get',
+												url: "<?php echo base_url('waku/testing_lagi'); ?>",										
+												beforeSend: function()
+												{
+	
+												},
+												success: function(data)
+												{
+													
+												},
+												error: function(err)
+												{
+													console.log(err.responseText);
+													$(document).Toasts('create', {
+														class: 'bg-danger',
+														title: 'Oops',
+														subtitle: 'Error',
+														body: 'Ada yang bermasalah kakak'
+													});
+												},
+												complete: function()
+												{
+													testing();
+												}
+											});
+										}, 3000);
+									}
+									else if(!sukses && init>0)
+									{
+										$('.loader2').hide();
+										$(document).Toasts('create', {
+											class: 'bg-danger',
+											title: 'Gagal kirim pesan',
+											subtitle: 'Error',
+											body: 'Pastikan wa web terbuka sepenuhnya, atau dimatikan terlebih dahulu extensi tampermonkey, apabila masih muncul error cek script update pada extensi tampermonkey'
+										});
+									}
 								}
 							}
 						});						

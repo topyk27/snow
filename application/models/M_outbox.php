@@ -138,6 +138,12 @@ class M_outbox extends CI_Model
 		echo json_encode($respon);
 	}
 
+	public function testing_lagi()
+	{
+		$tanggal = date("Y-m-d");
+		return $this->db->delete("testing",['tanggal' => $tanggal]);
+	}
+
 	public function cek_testing($id)
 	{		
 		$statement = "SELECT Status FROM testing WHERE ID='$id'";

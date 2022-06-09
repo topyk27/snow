@@ -99,6 +99,11 @@ class Waku extends CI_Controller
 		// return $this->m_outbox->insert_testing();
 		echo $this->m_outbox->insert_testing();
 	}
+	
+	public function testing_lagi()
+	{
+		$this->m_outbox->testing_lagi();
+	}
 
 	public function cek_testing()
 	{

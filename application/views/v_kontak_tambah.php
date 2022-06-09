@@ -11,6 +11,8 @@
 	<link rel="stylesheet" href="<?php echo base_url('asset/plugin/fontawesome-free/css/all.min.css') ?>">
 	<!-- AdminLTE css -->
 	<link rel="stylesheet" href="<?php echo base_url('asset/dist/css/adminlte.min.css') ?>">
+	<!-- SweetAlert2 -->
+	<link rel="stylesheet" href="<?php echo base_url('asset/plugin/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css'); ?>">
 </head>
 <body class="hold-transition sidebar-mini">
 	<div class="wrapper">
@@ -67,9 +69,9 @@
 										<div class="form-group">
 											<label>Nama</label>
 											<select id="nama" name="nama" class="form-control" style="width: 100%;" required>
-												
+												<option value='babi'>Pilih Jabatan Terlebih Dahulu</option>
 											</select>
-											<input type="text" name="nama" class="form-control w-100" style="display: none;" disabled>
+											<input type="text" name="nama" class="form-control w-100" style="display: none;" disabled required>
 										</div>
 										<div class="form-group">
 											<label>Nomor HP</label>
@@ -79,7 +81,7 @@
 														<i class="fas fa-phone"></i>
 													</span>
 												</div>
-												<input type="tel" name="nomor_hp" class="form-control" placeholder="Nomor Handphone">
+												<input type="tel" name="nomor_hp" class="form-control" placeholder="Nomor Handphone" required>
 												<input type="hidden" id="sok_ide" name="sok_ide">
 											</div>
 										</div>
@@ -109,6 +111,7 @@
 			</section>
 		</div>
 		<?php $this->load->view("_partials/footer.php") ?>
+		<?php $this->load->view("_partials/loader.php") ?>
 		<!-- Control Sidebar -->
 		<aside class="control-sidebar control-sidebar-dark">
 			<!-- Control sidebar content goes here -->
@@ -119,6 +122,8 @@
 	<script src="<?php echo base_url('asset/plugin/jquery/jquery.min.js'); ?>"></script>
 	<!-- Bootstrap 4 -->
 	<script src="<?php echo base_url('asset/plugin/bootstrap/js/bootstrap.bundle.min.js'); ?>"></script>
+	<!-- SweetAlert2 -->
+	<script src="<?php echo base_url('asset/plugin/sweetalert2/sweetalert2.min.js') ?>"></script>
 	<!-- AdminLTE App -->
 	<script src="<?php echo base_url('asset/dist/js/adminlte.min.js'); ?>"></script>
 	<!-- AdminLTE for demo purposes -->
@@ -128,17 +133,37 @@
 		$("document").ready(function(){
 			$("#sidebar_setting").addClass("active");
 			$("#sidebar_setting_kontak").addClass("active");
+			
 			$("select#jabatan").on('change', function(){
 				var jabatan = this.value;
 				if(jabatan!="babu")
 				{
 					if(jabatan=="kasir")
 					{
-						$("select#nama").children().remove();
-						$("select#nama").prop("disabled",true);
-						$("select#nama").hide();
-						$("input[name='nama']").prop("disabled",false);
-						$("input[name='nama']").show();
+						$.ajax({
+							type: 'GET',
+							url: "<?php echo base_url('kontak/kasir') ?>",
+							beforeSend: function()
+							{
+								$(".loader2").show();
+							},
+							success: function(respon)
+							{								
+								if(respon=='true')
+								{
+									$("select#nama").children().remove();
+									$("select#nama").prop("disabled",true);
+									$("select#nama").hide();
+									$("input[name='nama']").prop("disabled",false);
+									$("input[name='nama']").show();				
+								}
+								else
+								{
+									$("select#jabatan").val('babu').change();
+									toas('error','Kasir sudah terdaftar, tidak dapat ditambah lagi. Silahkan dihapus kasir sebelumnya');									
+								}
+							}
+						});
 					}
 					else
 					{
@@ -170,6 +195,11 @@
 						});
 					}
 				}
+				else
+				{
+					$("select#nama").children().remove();
+					$("select#nama").append("<option value='babi'>Pilih Jabatan Terlebih Dahulu</option>");
+				}
 			});
 
 			$("select#nama").on('change', function(){
@@ -180,6 +210,20 @@
 					$("input#sok_ide").val(nama[1]);
 				}
 			});
+
+			function toas(icon,msg)
+			{
+				let toast = Swal.mixin({
+					toast: true,
+					position: 'top-end',
+					showConfirmButton: false,
+					timer: 10000
+				});
+				toast.fire({
+					icon : icon,
+					title : msg
+				});
+			}
 		});
 	</script>
 </body>

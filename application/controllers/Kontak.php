@@ -50,6 +50,11 @@ class Kontak extends CI_Controller
 		}
 	}
 
+	public function kasir()
+	{
+		echo json_encode($this->m_kontak->kasir());
+	}
+
 	public function simpan()
 	{
 		if($this->m_login->isLogin())

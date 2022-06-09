@@ -11,6 +11,7 @@ class M_kontak extends CI_Model
 		parent::__construct();
 		$this->config->load('wa_config',TRUE);
 		$this->database=$this->config->item('database_sipp','wa_config');
+		$this->dbwa=$this->config->item('database_wa','wa_config');
 	}
 
 	public function getJabatan($jabatan)
@@ -38,6 +39,19 @@ class M_kontak extends CI_Model
 		return $query->result();
 	}
 
+	public function kasir()
+	{
+		$query = $this->db->query("SELECT * FROM $this->dbwa.daftar_kontak WHERE jabatan='kasir'");
+		if($query->num_rows() > 0)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
 	public function simpan()
 	{
 		$post = $this->input->post();
@@ -45,6 +59,12 @@ class M_kontak extends CI_Model
 		$nama = explode("#", $nama);
 		$nama_pejabat = $nama[0];
 		$jabatan = $post['jabatan'];
+		$idsipp = $post['sok_ide'];
+		if($jabatan=="babu")
+		{
+			return 'babu';
+		}
+
 		if($jabatan=="ketua" || $jabatan=="wakil" || $jabatan=="panitera")
 		{
 			$query = $this->db->query("SELECT id FROM daftar_kontak WHERE jabatan='$jabatan' ");
@@ -53,7 +73,17 @@ class M_kontak extends CI_Model
 				return "jabatan sudah ada";
 			}
 		}
-		$idsipp = $post['sok_ide'];
+		else if($jabatan=="kasir")
+		{
+			if($this->kasir())
+			{
+				$idsipp = 0;
+			}
+			else
+			{
+				return "jabatan sudah ada";
+			}
+		}		
 		$nomorhp = $post['nomor_hp'];
 		$this->db->query("INSERT INTO daftar_kontak VALUES ('$nama_pejabat','$jabatan',$idsipp,'$nomorhp') ");
 		return $this->db->affected_rows();
