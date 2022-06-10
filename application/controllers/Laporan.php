@@ -175,5 +175,10 @@ class Laporan extends CI_Controller
 		$data['ttd'] = $this->M_setting->ttd();
 		$this->load->view('laporan/panjar_cetak',$data);
 	}
+
+	public function putus()
+	{
+		$this->load->view('laporan/putus');
+	}
 }
  ?>
