@@ -154,7 +154,7 @@ class M_waku extends CI_Model
                                             on a.perkara_id=e.perkara_id
                                             left join $this->database.pihak f
                                             on e.pihak_id=f.id
-                                            left join waku.perkara_daftar z
+                                            left join $this->dbwa.perkara_daftar z
                                             on a.perkara_id=z.perkara_id
                                             where a.tanggal_pendaftaran >='".$tgldaftar."' and (d.telepon is not null and d.telepon<>'') and z.perkara_id is null
     
@@ -168,9 +168,10 @@ class M_waku extends CI_Model
                     $ganti = array($row->jenis_perkara_nama, str_replace("'", "''", $row->namap), $row->tgl_daftar, $row->nomor_perkara,$this->nama_pa);
                     $pesan = str_replace($cari, $ganti, $template[7]);
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
-                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp1','$pesan','wa')");
                     $tanggals = date("Y-m-d H:i:s");
-                    $this->db->query("insert into waku.perkara_daftar(perkara_id,nomor_perkara,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_daftar','" . str_replace("'", "''", $row->namap) . "','$row->telp1','$pesan','$tanggals')");
+                    $this->db->query("insert into $this->dbwa.perkara_daftar(perkara_id,nomor_perkara,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_daftar','" . str_replace("'", "''", $row->namap) . "','$row->telp1','$pesan','$tanggals')");
+                    $id_pesan = $this->db->insert_id();
+                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp1','$pesan','wa','perkara_daftar','$id_pesan')");
                     $pesan_daftar[] = $pesan;
                 }
             }
@@ -196,7 +197,7 @@ class M_waku extends CI_Model
                                             on a.perkara_id=b.perkara_id
                                             left join $this->database.pihak c 
                                             on b.pengacara_id = c.id
-                                            left join waku.perkara_daftar z
+                                            left join $this->dbwa.perkara_daftar z
                                             on a.perkara_id=z.perkara_id
                                             where a.tanggal_pendaftaran >='".$tgldaftar."' and d.nomor_perkara is not null and (c.telepon is not null and c.telepon<>'') and z.perkara_id is null
     
@@ -206,11 +207,12 @@ class M_waku extends CI_Model
 
                 foreach ($kweri_daftar->result() as $row) {
 
-                    $pesan = "E-Court: " . $row->nomor_ecourt . " telah terdaftar dengan no perkara: " . $row->nomor_perkara . " Dikirim otomatis oleh " . $this->nama_pa;
+                    $pesan = "E-Court: " . $row->nomor_ecourt . " telah terdaftar dengan no perkara: " . $row->nomor_perkara . " pesan ini dikirim otomatis oleh " . $this->nama_pa;
                     $telp1 = $this->_nomor_hp_indo($row->telp_pengacara);
-                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp1','$pesan','wa')");
                     $tanggals = date("Y-m-d H:i:s");
-                    $this->db->query("insert into waku.perkara_daftar(perkara_id,nomor_perkara,ecourt,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','Y','$row->tgl_daftar','" . str_replace("'", "''", $row->pengacara) . "','$row->telp_pengacara','$pesan','$tanggals')");
+                    $this->db->query("insert into $this->dbwa.perkara_daftar(perkara_id,nomor_perkara,ecourt,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','Y','$row->tgl_daftar','" . str_replace("'", "''", $row->pengacara) . "','$row->telp_pengacara','$pesan','$tanggals')");
+                    $id_pesan = $this->db->insert_id();
+                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp1','$pesan','wa','perkara_daftar','$id_pesan')");
                     $pesan_daftar[] = $pesan;
                 }
 
@@ -239,7 +241,7 @@ class M_waku extends CI_Model
                                             on a.perkara_id=b.perkara_id
                                             left join $this->database.pihak d
                                             on b.pihak_id=d.id
-                                            left join waku.akta_cerai z
+                                            left join $this->dbwa.akta_cerai z
                                             on a.perkara_id=z.perkara_id and b.pihak_id=z.nama_id
                                             where j.tgl_akta_cerai > '".$mulai."' and datediff(curdate(),j.tgl_akta_cerai) >=$jarak  and j.nomor_akta_cerai is not null and (d.telepon is not null and d.telepon<>'') and z.perkara_id is null
 
@@ -253,10 +255,10 @@ class M_waku extends CI_Model
                     $pesan=str_replace($cari,$ganti,$template[2]);
                     $pesan .= $web.'p/'.$row->nomor_perkara;
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
-                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp1','$pesan','wa')");
-                    $tanggals = date("Y-m-d H:i:s");
-                    
-                    $this->db->query("insert into waku.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pihak_id,'".str_replace("'","''",$row->namap)."','$row->telp1','$pesan','$tanggals')");
+                    $tanggals = date("Y-m-d H:i:s");                    
+                    $this->db->query("insert into $this->dbwa.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pihak_id,'".str_replace("'","''",$row->namap)."','$row->telp1','$pesan','$tanggals')");
+                    $id_pesan = $this->db->insert_id();
+                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp1','$pesan','wa','akta_cerai','$id_pesan')");
                     $pesan_akta[]=$pesan;
                 }
             }
@@ -274,7 +276,7 @@ class M_waku extends CI_Model
                                             on a.perkara_id=b.perkara_id
                                             left join $this->database.pihak d
                                             on b.pihak_id=d.id
-                                            left join waku.akta_cerai z
+                                            left join $this->dbwa.akta_cerai z
                                             on a.perkara_id=z.perkara_id and b.pihak_id=z.nama_id
                                             where j.tgl_akta_cerai > '".$mulai."' and datediff(curdate(),j.tgl_akta_cerai) >=$jarak  and j.nomor_akta_cerai is not null and (d.telepon is not null and d.telepon<>'') and z.perkara_id is null
 
@@ -288,10 +290,10 @@ class M_waku extends CI_Model
                     $pesan=str_replace($cari,$ganti,$template[2]);
                     $pesan .= $web.'t/'.$row->nomor_perkara;
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
-                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp1','$pesan','wa')");
-                    $tanggals = date("Y-m-d H:i:s");
-                    
-                    $this->db->query("insert into waku.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pihak_id,'".str_replace("'","''",$row->namap)."','$row->telp1','$pesan','$tanggals')");
+                    $tanggals = date("Y-m-d H:i:s");                    
+                    $this->db->query("insert into $this->dbwa.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pihak_id,'".str_replace("'","''",$row->namap)."','$row->telp1','$pesan','$tanggals')");
+                    $id_pesan = $this->db->insert_id();
+                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp1','$pesan','wa','akta_cerai','$id_pesan')");
                     $pesan_akta[]=$pesan;
                 }
             }
@@ -317,7 +319,7 @@ class M_waku extends CI_Model
                                             on a.perkara_id=b.perkara_id
                                             left join $this->database.pihak d 
                                             on b.pengacara_id = d.id
-                                            left join waku.akta_cerai z
+                                            left join $this->dbwa.akta_cerai z
                                             on a.perkara_id=z.perkara_id and b.pengacara_id=z.nama_id
                                             where j.tgl_akta_cerai > '".$mulai."' and datediff(curdate(),j.tgl_akta_cerai) >= $jarak  and j.nomor_akta_cerai is not null and (d.telepon is not null and d.telepon<>'') and z.perkara_id is null
 
@@ -331,9 +333,10 @@ class M_waku extends CI_Model
                     $pesan=str_replace($cari,$ganti,$template[2]);
                     $pesan .= $web.$row->nomor_perkara;
                     $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
-                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pengacara','$pesan','wa')");
                     $tanggals = date("Y-m-d H:i:s");
-                    $this->db->query("insert into waku.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pengacara_id,'".str_replace("'","''",$row->nama_pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                    $this->db->query("insert into $this->dbwa.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pengacara_id,'".str_replace("'","''",$row->nama_pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                    $id_pesan = $this->db->insert_id();
+                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','akta_cerai','$id_pesan')");
                     $pesan_akta[]=$pesan;
                 }
             }
@@ -374,7 +377,7 @@ class M_waku extends CI_Model
 
                 foreach ($kweri_psp->result() as $row) {
 
-                    $psp = $this->db->query("select date_format(max(dikirim),'%Y-%m-%d') as tgl from waku.sisa_panjar where perkara_id=$row->perkara_id")->row();
+                    $psp = $this->db->query("select date_format(max(dikirim),'%Y-%m-%d') as tgl from $this->dbwa.sisa_panjar where perkara_id=$row->perkara_id")->row();
                     if ((is_null($psp->tgl)) or (empty($psp->tgl))) {
 
                         $cari=array("#noperk#","#saldo#","#nama_pa#");
@@ -383,18 +386,18 @@ class M_waku extends CI_Model
 
                         if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
                             $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
-                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pengacara','$pesan','wa')");
                             $tanggals = date("Y-m-d H:i:s");
-                            $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                            $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','sisa_panjar','$id_pesan')");
                         } else {
 
                             if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
                                 $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
-                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pihak','$pesan','wa')");
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
-
-
+                                $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
                             }
 
                         }
@@ -413,17 +416,19 @@ class M_waku extends CI_Model
                             $pesan=str_replace($cari,$ganti,$template[10]);
                             if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
                                 $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
-                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pengacara','$pesan','wa')");
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                                $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','sisa_panjar','$id_pesan')");
                                 $pesan_psp[]=$pesan;
                             } else {
 
                                 if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
                                     $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pihak','$pesan','wa')");
                                     $tanggals = date("Y-m-d H:i:s");
-                                    $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                    $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                    $id_pesan = $this->db->insert_id();
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
                                     $pesan_psp[]=$pesan;
 
                                 }
@@ -470,24 +475,26 @@ class M_waku extends CI_Model
 
                 foreach ($kweri_psp->result() as $row) {
 
-                    $psp = $this->db->query("select date_format(max(dikirim),'%Y-%m-%d') as tgl from waku.sisa_panjar where perkara_id=$row->perkara_id")->row();
+                    $psp = $this->db->query("select date_format(max(dikirim),'%Y-%m-%d') as tgl from $this->dbwa.sisa_panjar where perkara_id=$row->perkara_id")->row();
                     if ((is_null($psp->tgl)) or (empty($psp->tgl))) {
                         $cari=array("#noperk#","#saldo#","#nama_pa#");
                         $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
                         $pesan=str_replace($cari,$ganti,$template[10]);                   
                         if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
                             $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
-                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pengacara','$pesan','wa')");
                             $tanggals = date("Y-m-d H:i:s");
-                            $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                            $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','sisa_panjar','$id_pesan')");
                             $pesan_psp[]=$pesan;
                         } else {
 
                             if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
                                 $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
-                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pihak','$pesan','wa')");
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
                                 $pesan_psp[]=$pesan;
 
                             }
@@ -508,17 +515,19 @@ class M_waku extends CI_Model
                            
                             if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
                                 $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
-                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pengacara','$pesan','wa')");
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                                $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','sisa_panjar','$id_pesan')");
                                 $pesan_psp[]=$pesan;
                             } else {
 
                                 if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
                                     $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$row->telp_pihak','$pesan','wa')");
                                     $tanggals = date("Y-m-d H:i:s");
-                                    $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                    $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                    $id_pesan = $this->db->insert_id();
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$row->telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
 
                                     $pesan_psp[]=$pesan;
                                 }
@@ -565,7 +574,7 @@ class M_waku extends CI_Model
 
                 foreach ($kweri_psp->result() as $row) {
 
-                    $psp = $this->db->query("select date_format(max(dikirim),'%Y-%m-%d') as tgl from waku.sisa_panjar where perkara_id=$row->perkara_id")->row();
+                    $psp = $this->db->query("select date_format(max(dikirim),'%Y-%m-%d') as tgl from $this->dbwa.sisa_panjar where perkara_id=$row->perkara_id")->row();
                     if ((is_null($psp->tgl)) or (empty($psp->tgl))) {
                         $cari=array("#noperk#","#saldo#","#nama_pa#");
                         $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
@@ -573,17 +582,19 @@ class M_waku extends CI_Model
                         
                         if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
                             $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
-                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pengacara','$pesan','wa')");
                             $tanggals = date("Y-m-d H:i:s");
-                            $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                            $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','sisa_panjar','$id_pesan')");
                             $pesan_psp[]=$pesan;
                         } else {
 
                             if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
                                 $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
-                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pihak','$pesan','wa')");
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
 
                                 $pesan_psp[]=$pesan;
                             }
@@ -603,17 +614,19 @@ class M_waku extends CI_Model
                            
                             if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
                                 $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
-                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pengacara','$pesan','wa')");
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                                $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','sisa_panjar','$id_pesan')");
                                 $pesan_psp[]=$pesan;
                             } else {
 
                                 if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
                                     $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pihak','$pesan','wa')");
                                     $tanggals = date("Y-m-d H:i:s");
-                                    $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                    $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                    $id_pesan = $this->db->insert_id();
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
                                     $pesan_psp[]=$pesan;
 
                                 }
@@ -659,7 +672,7 @@ class M_waku extends CI_Model
 
                 foreach ($kweri_psp->result() as $row) {
 
-                    $psp = $this->db->query("select date_format(max(dikirim),'%Y-%m-%d') as tgl from waku.sisa_panjar where perkara_id=$row->perkara_id")->row();
+                    $psp = $this->db->query("select date_format(max(dikirim),'%Y-%m-%d') as tgl from $this->dbwa.sisa_panjar where perkara_id=$row->perkara_id")->row();
                     if ((is_null($psp->tgl)) or (empty($psp->tgl))) {
                         $cari=array("#noperk#","#saldo#","#nama_pa#");
                         $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
@@ -667,17 +680,19 @@ class M_waku extends CI_Model
                       
                         if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
                             $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
-                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pengacara','$pesan','wa')");
                             $tanggals = date("Y-m-d H:i:s");
-                            $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                            $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','sisa_panjar','$id_pesan')");
                             $pesan_psp[]=$pesan;
                         } else {
 
                             if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
                                 $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
-                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pihak','$pesan','wa')");
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
                                 $pesan_psp[]=$pesan;
 
                             }
@@ -696,17 +711,19 @@ class M_waku extends CI_Model
                             $pesan=str_replace($cari,$ganti,$template[10]);
                             if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
                                 $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
-                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pengacara','$pesan','wa')");
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                                $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','sisa_panjar','$id_pesan')");
                                 $pesan_psp[]=$pesan;
                             } else {
 
                                 if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
                                     $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$telp_pihak','$pesan','wa')");
                                     $tanggals = date("Y-m-d H:i:s");
-                                    $this->db->query("insert into waku.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                    $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
+                                    $id_pesan = $this->db->insert_id();
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
                                     $pesan_psp[]=$pesan;
 
                                 }
@@ -737,7 +754,7 @@ class M_waku extends CI_Model
                                                 d.`efiling_id`,d.nomor_register as nomor_ecourt, f.nama as pengacara, f.telepon as tlp_pengacara, h.nama as pihak1, h.telepon as tlp_pihak1 
                                                 FROM $this->database.perkara_jadwal_sidang a
                                                 LEFT JOIN $this->database.perkara b ON a.perkara_id=b.perkara_id
-                                                LEFT JOIN waku.`sidang` c ON a.perkara_id=c.perkara_id AND a.tanggal_sidang=c.tanggal_sidang 
+                                                LEFT JOIN $this->dbwa.`sidang` c ON a.perkara_id=c.perkara_id AND a.tanggal_sidang=c.tanggal_sidang 
                                                 LEFT JOIN $this->database.perkara_efiling d ON b.`nomor_perkara`=d.`nomor_perkara`
                                                 left join $this->database.perkara_pengacara e on a.perkara_id=e.perkara_id
                                                 left join $this->database.pihak f on e.pengacara_id = f.id
@@ -755,15 +772,16 @@ class M_waku extends CI_Model
 
                             //pengacara
                             if ($row->sidangke == 1) {
-                                $pesan = "E-Court: " . $row->nomor_ecourt . " no perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang) . " Cek Ecourt untuk cek panggilannya,dikirim otomatis $this->nama_pa";
+                                $pesan = "E-Court: " . $row->nomor_ecourt . " nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang) . " Cek Ecourt untuk cek panggilannya,dikirim otomatis $this->nama_pa";
                             } else {
-                                $pesan = "E-Court: " . $row->nomor_ecourt . " no perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang) . " Dikirim otomatis $this->nama_pa";
+                                $pesan = "E-Court: " . $row->nomor_ecourt . " no perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang) . " dikirim otomatis $this->nama_pa";
                             }
                             $ecourt = 1;
                             $tlp_pengacara = $this->_nomor_hp_indo($row->tlp_pengacara);
-                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$tlp_pengacara',  '$pesan','wa')");
                             $tanggals = date("Y-m-d H:i:s");
-                            $this->db->query("insert into waku.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'$row->nomor_ecourt','".str_replace("'","''",$row->pengacara)."','$row->tlp_pengacara','$tanggals','$pesan')");
+                            $this->db->query("insert into $this->dbwa.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'$row->nomor_ecourt','".str_replace("'","''",$row->pengacara)."','$row->tlp_pengacara','$tanggals','$pesan')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$tlp_pengacara',  '$pesan','wa','sidang','$id_pesan')");
 
                             $pesan_sidang[]=$pesan;
                         }
@@ -776,9 +794,10 @@ class M_waku extends CI_Model
                             $pesan=str_replace($cari,$ganti,$template[5]);
                             $ecourt = 1;
                             $tlp_pihak1 = $this->_nomor_hp_indo($row->tlp_pihak1);
-                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$tlp_pihak1',  '$pesan','wa')");
                             $tanggals = date("Y-m-d H:i:s");
-                            $this->db->query("insert into waku.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'$row->nomor_ecourt','".str_replace("'","''",$row->pihak1)."','$row->tlp_pihak1','$tanggals','$pesan')");
+                            $this->db->query("insert into $this->dbwa.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'$row->nomor_ecourt','".str_replace("'","''",$row->pihak1)."','$row->tlp_pihak1','$tanggals','$pesan')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$tlp_pihak1',  '$pesan','wa','sidang','$id_pesan')");
                             $pesan_sidang[]=$pesan;
                         }
 
@@ -792,9 +811,10 @@ class M_waku extends CI_Model
                             $pesan=str_replace($cari,$ganti,$template[5]);
                             $ecourt = 0;
                             $tlp_pengacara = $this->_nomor_hp_indo($row->tlp_pengacara);
-                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$tlp_pengacara',  '$pesan','wa')");
                             $tanggals = date("Y-m-d H:i:s");
-                            $this->db->query("insert into waku.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'-','".str_replace("'","''",$row->pengacara)."','$row->tlp_pengacara','$tanggals','$pesan')");
+                            $this->db->query("insert into $this->dbwa.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'-','".str_replace("'","''",$row->pengacara)."','$row->tlp_pengacara','$tanggals','$pesan')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$tlp_pengacara',  '$pesan','wa','sidang','$id_pesan')");
                             $pesan_sidang[]=$pesan;
                         }
 
@@ -806,9 +826,10 @@ class M_waku extends CI_Model
                             $pesan=str_replace($cari,$ganti,$template[5]);
                             $ecourt = 0;
                             $tlp_pihak1 = $this->_nomor_hp_indo($row->tlp_pihak1);
-                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$tlp_pihak1',  '$pesan','wa')");
                             $tanggals = date("Y-m-d H:i:s");
-                            $this->db->query("insert into waku.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'-','".str_replace("'","''",$row->pihak1)."','$row->tlp_pihak1','$tanggals','$pesan')");
+                            $this->db->query("insert into $this->dbwa.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'-','".str_replace("'","''",$row->pihak1)."','$row->tlp_pihak1','$tanggals','$pesan')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$tlp_pihak1',  '$pesan','wa','sidang','$id_pesan')");
                             $pesan_sidang[]=$pesan;
                         }
 
@@ -849,11 +870,11 @@ class M_waku extends CI_Model
                     {
                         if(empty($alasan_tunda))
                         {
-                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda;
+                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda." pesan ini dikirim otomati oleh ".$this->nama_pa;
                         }
                         else
                         {
-                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda;
+                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda." pesan ini dikirim otomatis oleh ".$this->nama_pa;
                         }
                         $ecourt = 1;                        
                     }
@@ -861,17 +882,18 @@ class M_waku extends CI_Model
                     {
                         if(empty($alasan_tunda))
                         {
-                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda;
+                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda." pesan ini dikirim otomatis oleh ".$this->nama_pa;
                         }
                         else
                         {
-                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda;
+                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda." pesan ini dikirim otomatis oleh ".$this->nama_pa;
                         }
                         $ecourt = 0;
                     }
-                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$hp_js',  '$pesan','wa')");
                     $tanggals = date("Y-m-d H:i:s");
                     $this->db->query("insert into $this->dbwa.sidang_jurusita(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,jurusita_nama,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'$row->nomor_ecourt','".str_replace("'","''",$row->jurusita_nama)."','$hp_js','$tanggals','$pesan')");
+                    $id_pesan = $this->db->insert_id();
+                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_js',  '$pesan','wa','sidang_jurusita','$id_pesan')");
                     $pesan_tunda_sidang[]=$pesan;
                 }
             }
@@ -914,20 +936,22 @@ class M_waku extends CI_Model
                     $cari = array("#jenis#","#noperk#","#tgl_putus#");
                     $ganti = array($jenis,$row->nomor_perkara,$this->_tgl_indo($row->tgl_putus));
                     $pesan = str_replace($cari,$ganti,$template[12]);
-                    $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID) VALUES ('$hp_kasir', '$pesan', 'wa')");
+                    $pesan .= " pesan ini dikirim otomatsi oleh ".$this->nama_pa;
                     
                     if($jenis=='Gugatan')                    
                     {
                         $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
                         $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
-                        $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID) VALUES ('$hp_js', '$pesan', 'wa')");
-                        
                         $nama = $row->jurusita_nama;
                         $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_js,'$nama','$pesan',NOW())");
+                        $id_pesan = $this->db->insert_id();
+                        $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_js', '$pesan', 'wa','putus','$id_pesan')");
                     }
                     // $tanggals = date("Y-m-d H:i:s");
-
+                    
                     $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_kasir,'$nama_kasir','$pesan',NOW())");
+                    $id_pesan = $this->db->insert_id();
+                    $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_kasir', '$pesan', 'wa','putus','$id_pesan')");
                     $pesan_putus[] = $pesan;
                 }
             }
@@ -951,7 +975,7 @@ class M_waku extends CI_Model
             if ($pmh->num_rows() > 0)
             {
                 $perk = [];
-                $hpketua = $this->db->query("select id,nomorhp from daftar_kontak where jabatan='ketua'")->row();
+                $hpketua = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where jabatan='ketua'")->row();
                 foreach ($pmh->result() as $row)
                 {
                     $noperk = explode("/", $row->nomor_perkara);
@@ -979,9 +1003,10 @@ class M_waku extends CI_Model
                     if (!empty($hpketua->nomorhp))
                     {
                         $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
-                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                         $tanggals = date("Y-m-d H:i:s");
-                        $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpketua->id,'$hpketua->nomorhp','pmh','$pesan','$tanggals')");
+                        $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpketua->id,'$hpketua->nomorhp','pmh','$pesan','$tanggals')");
+                        $id_pesan = $this->db->insert_id();
+                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                         $pesan_notif[]=$pesan;
                     }
                     else
@@ -999,9 +1024,10 @@ class M_waku extends CI_Model
                                 if (!empty($hpketua->nomorhp))
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                     $tanggals = date("Y-m-d H:i:s");
-                                    $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpketua->id,'$hpketua->nomorhp','pmh','$pesan','$tanggals')");
+                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpketua->id,'$hpketua->nomorhp','pmh','$pesan','$tanggals')");
+                                    $id_pesan = $this->db->insert_id();
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                     $pesan_notif[]=$pesan;
                                 }
                                 $perk2 = [];
@@ -1016,9 +1042,10 @@ class M_waku extends CI_Model
                                     if (!empty($hpketua->nomorhp))
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
-                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                         $tanggals = date("Y-m-d H:i:s");
-                                        $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpketua->id,'$hpketua->nomorhp','pmh','$pesan','$tanggals')");
+                                        $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpketua->id,'$hpketua->nomorhp','pmh','$pesan','$tanggals')");
+                                        $id_pesan = $this->db->insert_id();
+                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                         $pesan_notif[]=$pesan;
                                     }
                                 }
@@ -1033,17 +1060,18 @@ class M_waku extends CI_Model
                                 where DATEDIFF(curdate(),a.tanggal_pendaftaran) > 4 and year(a.tanggal_pendaftaran)>=$tahunnotif and b.perkara_id is null")->row();
             if ($pp->jumlah > 0)
             {
-                $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='pp' and datediff(curdate(),dikirim)=0")->row();
+                $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='pp' and datediff(curdate(),dikirim)=0")->row();
                 if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                 {
                     $pesan = "SIPP: Ada sebanyak " . $pp->jumlah . " perkara yang belum ada penetapan PP dan jurusita lebih dari 4 hari setelah pendaftaran, dikirim otomatis oleh $this->nama_pa";
-                    $hppanitera = $this->db->query("select id,nomorhp from daftar_kontak where jabatan='panitera'")->row();
+                    $hppanitera = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where jabatan='panitera'")->row();
                     if (!empty($hppanitera->nomorhp))
                     {
                         $nomorhp = $this->_nomor_hp_indo($hppanitera->nomorhp);
-                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                         $tanggals = date("Y-m-d H:i:s");
-                        $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values('$hppanitera->id','$hppanitera->nomorhp','pp','$pesan','$tanggals')");
+                        $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values('$hppanitera->id','$hppanitera->nomorhp','pp','$pesan','$tanggals')");
+                        $id_pesan = $this->db->insert_id();
+                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                     }
                     $pesan_notif[]=$pesan;
                 }
@@ -1061,7 +1089,7 @@ class M_waku extends CI_Model
             {
                 foreach ($row->result() as $phs)
                 {
-                    $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from waku.reminder_sipp where validasi='phs' and user_sipp=$phs->hakim_id and datediff(curdate(),dikirim)=0")->row();
+                    $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='phs' and user_sipp=$phs->hakim_id and datediff(curdate(),dikirim)=0")->row();
                     if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                     {
                         $kweri = $this->db->query("select a.hakim_id, y.nomor_perkara from $this->database.perkara_hakim_pn a 
@@ -1076,7 +1104,7 @@ class M_waku extends CI_Model
                         if($kweri->num_rows() > 0)
                         {
                             $perk=[];
-                            $hpkm = $this->db->query("select id,nomorhp from daftar_kontak where id=$phs->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
+                            $hpkm = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$phs->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
                             foreach ($kweri->result() as $row)
                             {
                                 $noperk=explode("/",$row->nomor_perkara);
@@ -1104,9 +1132,10 @@ class M_waku extends CI_Model
                                 if (!empty($hpkm->nomorhp))
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                     $tanggals = date("Y-m-d H:i:s");
-                                    $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
+                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
+                                    $id_pesan = $this->db->insert_id();
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                     $pesan_notif[]=$pesan;
                                 }
                                 else
@@ -1124,9 +1153,10 @@ class M_waku extends CI_Model
                                             if (!empty($hpkm->nomorhp))
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                                 $tanggals = date("Y-m-d H:i:s");
-                                                $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
+                                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
+                                                $id_pesan = $this->db->insert_id();
+                                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                                 $pesan_notif[]=$pesan;
                                             }
                                             $perk2 = [];
@@ -1141,9 +1171,10 @@ class M_waku extends CI_Model
                                                 if (!empty($hpkm->nomorhp))
                                                 {
                                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                                     $tanggals = date("Y-m-d H:i:s");
-                                                    $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
+                                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
+                                                    $id_pesan = $this->db->insert_id();
+                                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                                     $pesan_notif[]=$pesan;
                                                 }
                                             }
@@ -1172,17 +1203,18 @@ class M_waku extends CI_Model
                         $beda = $diff->format('%R%a');
                         if ($beda < -2)
                         {
-                            $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='sidang' and user_sipp=$row->panitera_id and datediff(curdate(),dikirim)=0")->row();
+                            $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='sidang' and user_sipp=$row->panitera_id and datediff(curdate(),dikirim)=0")->row();
                             if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                             {
                                 $pesan = " SIPP: Nomor perkara " . $row->nomor_perkara . " PP " . $row->panitera_nama . " belum diisi tundaan sidangnya, sidang terakhir " . $tanggal_sidang . " dikirim $this->nama_pa";
-                                $pp = $this->db->query("select id,nomorhp from daftar_kontak where id=$row->panitera_id and jabatan in ('panitera','pp')")->row();
+                                $pp = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$row->panitera_id and jabatan in ('panitera','pp')")->row();
                                 if (!empty($pp->nomorhp))
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($pp->nomorhp);
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                     $tanggals = date("Y-m-d H:i:s");
-                                    $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values('$pp->id','$pp->nomorhp','sidang','$pesan','$tanggals')");
+                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values('$pp->id','$pp->nomorhp','sidang','$pesan','$tanggals')");
+                                    $id_pesan = $this->db->insert_id();
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                     $pesan_notif[]=$pesan;
                                 }
                             }
@@ -1208,7 +1240,7 @@ class M_waku extends CI_Model
                         {
                             continue;
                         }
-                        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='putus' and user_sipp=$putus->hakim_id and datediff(curdate(),dikirim)=0")->row();
+                        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='putus' and user_sipp=$putus->hakim_id and datediff(curdate(),dikirim)=0")->row();
                         if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                         {
                             $kweri= $this->db->query("
@@ -1223,7 +1255,7 @@ class M_waku extends CI_Model
                             if ($kweri->num_rows() > 0)
                             {
                                 $perk=[];
-                                $hpkm = $this->db->query("select id,nomorhp from daftar_kontak where id=$putus->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
+                                $hpkm = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$putus->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
                                 foreach ($kweri->result() as $row)
                                 {
                                     $noperk=explode("/",$row->nomor_perkara);
@@ -1251,9 +1283,10 @@ class M_waku extends CI_Model
                                     if (!empty($hpkm->nomorhp))
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                         $tanggals = date("Y-m-d H:i:s");
-                                        $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
+                                        $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
+                                        $id_pesan = $this->db->insert_id();
+                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                         $pesan_notif[]=$pesan;
                                     }
                                 }
@@ -1272,9 +1305,10 @@ class M_waku extends CI_Model
                                             if (!empty($hpkm->nomorhp))
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                                 $tanggals = date("Y-m-d H:i:s");
-                                                $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
+                                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
+                                                $id_pesan = $this->db->insert_id();
+                                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                                 $pesan_notif[]=$pesan;
                                             }
                                             $perk2 = [];
@@ -1290,9 +1324,10 @@ class M_waku extends CI_Model
                                                 if (!empty($hpkm->nomorhp))
                                                 {
                                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                                     $tanggals = date("Y-m-d H:i:s");
-                                                    $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
+                                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
+                                                    $id_pesan = $this->db->insert_id();
+                                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                                     $pesan_notif[]=$pesan;
                                                 }
                                             }
@@ -1316,20 +1351,21 @@ class M_waku extends CI_Model
                 {
                     foreach ($row->result() as $putus)
                     {
-                        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='materai' and user_sipp=1000 and datediff(curdate(),dikirim)=0")->row();
+                        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='materai' and user_sipp=1000 and datediff(curdate(),dikirim)=0")->row();
                         if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                         {
                             $pesan = "SIPP: Perkara " . $putus->nomor_perkara . " sudah putus (" . $putus->tgl_putus . ") belum diinput materainya, dikirim otomatis oleh $this->nama_pa";
-                            $kasir = $this->db->query("select nomorhp from daftar_kontak where jabatan='kasir'");
+                            $kasir = $this->db->query("select nomorhp from $this->dbwa.daftar_kontak where jabatan='kasir'");
                             if ($kasir->num_rows() > 0)
                             {
                                 foreach ($kasir->result() as $hpkasir)
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($hpkasir->nomorhp);
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                 }
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values(1000,'$hpkasir->nomorhp','materai','$pesan','$tanggals')");
+                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values(1000,'$hpkasir->nomorhp','materai','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                 $pesan_notif[]=$pesan;
                             }
                         }
@@ -1347,7 +1383,7 @@ class M_waku extends CI_Model
                 {
                     foreach ($row->result() as $minutasi)
                     {
-                        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='minutasi' and user_sipp=$minutasi->hakim_id and datediff(curdate(),dikirim)=0")->row();
+                        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='minutasi' and user_sipp=$minutasi->hakim_id and datediff(curdate(),dikirim)=0")->row();
                         if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                         {
                             $kweri = $this->db->query("select a.hakim_id,y.nomor_perkara from $this->database.perkara_hakim_pn a
@@ -1361,7 +1397,7 @@ class M_waku extends CI_Model
                             if ($kweri->num_rows() > 0)
                             {
                                 $perk=[];
-                                $hpkm = $this->db->query("select id,nomorhp from daftar_kontak where id=$minutasi->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
+                                $hpkm = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$minutasi->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
                                 foreach ($kweri->result() as $row)
                                 {
                                     $noperk=explode("/",$row->nomor_perkara);
@@ -1389,9 +1425,10 @@ class M_waku extends CI_Model
                                     if (!empty($hpkm->nomorhp))
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                         $tanggals = date("Y-m-d H:i:s");
-                                        $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                        $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                        $id_pesan = $this->db->insert_id();
+                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                         $pesan_notif[]=$pesan;
                                     }
                                 }
@@ -1410,9 +1447,10 @@ class M_waku extends CI_Model
                                             if (!empty($hpkm->nomorhp))
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                                 $tanggals = date("Y-m-d H:i:s");
-                                                $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                                $id_pesan = $this->db->insert_id();
+                                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                                 $pesan_notif[]=$pesan;
                                             }
                                             $perk2 = [];
@@ -1427,9 +1465,10 @@ class M_waku extends CI_Model
                                                 if (!empty($hpkm->nomorhp))
                                                 {
                                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID) VALUES ('$nomorhp',  '$pesan','wa')");
                                                     $tanggals = date("Y-m-d H:i:s");
-                                                    $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                                    $id_pesan = $this->db->insert_id();
+                                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                                     $pesan_notif[]=$pesan;
                                                 }
                                             }

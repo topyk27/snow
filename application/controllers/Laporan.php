@@ -19,7 +19,7 @@ class Laporan extends CI_Controller
 	}
 	public function nama_bulan($bulan)
 	{
-		$bln;
+		$bln='';
 		switch ($bulan) {
 			
 			case 1 :
@@ -179,6 +179,57 @@ class Laporan extends CI_Controller
 	public function putus()
 	{
 		$this->load->view('laporan/putus');
+	}
+
+	public function data_laporan_putus()
+	{
+		$data = $this->M_laporan->getAllPutus();
+		echo json_encode($data);
+	}
+
+	public function data_laporan_putus_filter()
+	{
+		$data = $this->M_laporan->getByDatePutus();
+		echo json_encode($data);
+	}
+
+	public function cetak_laporan_putus($bulan,$tahun)
+	{
+		$data['laporan'] = $this->M_laporan->cetak_putus($bulan,$tahun);
+		$bln = $this->nama_bulan($bulan);
+		$data['bulan'] = $bln;
+		$data['tahun'] = $tahun;
+		$data['now'] = date('d')." ".$this->nama_bulan(date('n'))." ".date('Y');
+		$data['ttd'] = $this->M_setting->ttd();
+		$this->load->view('laporan/putus_cetak',$data);
+	}
+
+	public function sidang_js()
+	{
+		$this->load->view('laporan/sidang_js');
+	}
+
+	public function data_laporan_sidang_js()
+	{
+		$data = $this->M_laporan->getAllSidang_js();
+		echo json_encode($data);
+	}
+
+	public function data_laporan_sidang_js_filter()
+	{
+		$data = $this->M_laporan->getByDateSidang_js();
+		echo json_encode($data);
+	}
+
+	public function cetak_laporan_sidang_js($bulan,$tahun)
+	{
+		$data['laporan'] = $this->M_laporan->cetak_sidang_js($bulan,$tahun);
+		$bln = $this->nama_bulan($bulan);
+		$data['bulan'] = $bln;
+		$data['tahun'] = $tahun;
+		$data['now'] = date('d')." ".$this->nama_bulan(date('n'))." ".date('Y');
+		$data['ttd'] = $this->M_setting->ttd();
+		$this->load->view('laporan/sidang_js_cetak',$data);
 	}
 }
  ?>

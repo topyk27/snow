@@ -410,10 +410,14 @@
 						console.log(data);
 						if(data=="ok")
 						{
-							getPesan();
+							setTimeout(() => {
+								$('.loader2').hide();
+								getPesan();
+							}, 3000);
 						}
 						else if(data=="error")
 						{
+							$('.loader2').hide();
 							$(document).Toasts('create', {
 							class: 'bg-danger',
 							title: 'Gagal kirim pesan',

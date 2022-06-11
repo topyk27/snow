@@ -23,6 +23,7 @@ class Welcome extends CI_Controller {
 		parent::__construct();
 		$this->load->model("m_login");
 		$this->load->model("m_waku");
+		$this->load->model("m_outbox");
 	}
 	
 	public function index()
@@ -38,9 +39,8 @@ class Welcome extends CI_Controller {
 		}
 	}
 
-	public function tes()
-	{
-		$template_wa=$this->m_waku->template_pesan();
-		echo json_encode($this->m_waku->tunda_sidang($template_wa));
-	}
+	// public function tes()
+	// {
+	// 	echo json_encode($this->m_outbox->get_id_pesan_dan_tabel(1));
+	// }
 }
