@@ -17,8 +17,8 @@
 			<a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Laporan</a>
 			<ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
 				<li>
-					<a href="<?php echo base_url("laporan/pendaftaran"); ?>" class="dropdown-item">
-					Pendaftaran
+					<a href="<?php echo base_url("laporan/akta"); ?>" class="dropdown-item">
+					Akta Cerai
 					</a>
 				</li>
 				<li>
@@ -27,13 +27,23 @@
 					</a>
 				</li>
 				<li>
-					<a href="<?php echo base_url("laporan/panjar"); ?>" class="dropdown-item">
-					Sisa Panjar
+					<a href="<?php echo base_url("laporan/sidang_js"); ?>" class="dropdown-item">
+					Jurusita
 					</a>
 				</li>
 				<li>
-					<a href="<?php echo base_url("laporan/akta"); ?>" class="dropdown-item">
-					Akta Cerai
+					<a href="<?php echo base_url("laporan/pendaftaran"); ?>" class="dropdown-item">
+					Pendaftaran
+					</a>
+				</li>
+				<li>
+					<a href="<?php echo base_url("laporan/putus"); ?>" class="dropdown-item">
+					Putus
+					</a>
+				</li>
+				<li>
+					<a href="<?php echo base_url("laporan/panjar"); ?>" class="dropdown-item">
+					Sisa Panjar
 					</a>
 				</li>
 			</ul>

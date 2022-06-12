@@ -49,9 +49,9 @@
 					</a>
 					<ul class="nav nav-treeview">
 						<li class="nav-item">
-							<a href="<?php echo base_url('laporan/pendaftaran'); ?>" class="nav-link" id="sidebar_laporan_pendaftaran">
+							<a href="<?php echo base_url('laporan/akta'); ?>" class="nav-link" id="sidebar_laporan_ac">
 								<i class="nav-icon far fa-circle"></i>
-								<p>Pendaftaran</p>
+								<p>Akta Cerai</p>
 							</a>
 						</li>
 						<li class="nav-item">
@@ -61,15 +61,27 @@
 							</a>
 						</li>
 						<li class="nav-item">
-							<a href="<?php echo base_url('laporan/panjar'); ?>" class="nav-link" id="sidebar_laporan_panjar">
+							<a href="<?php echo base_url('laporan/sidang_js'); ?>" class="nav-link" id="sidebar_laporan_sidang_js">
 								<i class="nav-icon far fa-circle"></i>
-								<p>Sisa Panjar</p>
+								<p>Jurusita</p>
 							</a>
 						</li>
 						<li class="nav-item">
-							<a href="<?php echo base_url('laporan/akta'); ?>" class="nav-link" id="sidebar_laporan_ac">
+							<a href="<?php echo base_url('laporan/pendaftaran'); ?>" class="nav-link" id="sidebar_laporan_pendaftaran">
 								<i class="nav-icon far fa-circle"></i>
-								<p>Akta Cerai</p>
+								<p>Pendaftaran</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="<?php echo base_url('laporan/putus'); ?>" class="nav-link" id="sidebar_laporan_putus">
+								<i class="nav-icon far fa-circle"></i>
+								<p>Putus</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="<?php echo base_url('laporan/panjar'); ?>" class="nav-link" id="sidebar_laporan_panjar">
+								<i class="nav-icon far fa-circle"></i>
+								<p>Sisa Panjar</p>
 							</a>
 						</li>
 					</ul>

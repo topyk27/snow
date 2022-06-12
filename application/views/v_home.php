@@ -46,7 +46,7 @@
 									<h3 class="card-title p-3"><b>S</b>istem <b> No</b>tifikasi <b> W</b>hatsapp</h3>
 								</div>
 								<div class="card-body">
-									<p>Sistem Notifikasi Whatsapp adalah sebuah aplikasi yang mengirimkan notifikasi seputar informasi dari aplikasi Sistem Informasi Penelusuran Perkara (SIPP) kepada Hakim, Panitera, Jurusita dan pihak yang telah terdaftar.</p>
+									<p>Sistem Notifikasi Whatsapp adalah sebuah aplikasi yang mengirimkan notifikasi seputar informasi dari aplikasi Sistem Informasi Penelusuran Perkara (SIPP) kepada Hakim, Panitera, Jurusita, Kasir dan pihak yang telah terdaftar.</p>
 								</div>
 							</div>
 
@@ -57,11 +57,44 @@
 								<div class="card-body">
 									<p>Sistem akan mengirimkan notifikasi melalui aplikasi Whatsapp berupa informasi tentang :</p>
 									<ul>
-										<li>Pendaftaran</li>
-										<li>Jadwal Sidang</li>
-										<li>Pengembalian Sisa Panjar</li>
 										<li>Akta Cerai</li>
+										<li>Jadwal Sidang</li>
+										<li>Tundaan Sidang</li>
+										<li>Pendaftaran</li>
+										<li>Perkara Putus</li>
+										<li>Pengembalian Sisa Panjar</li>
 									</ul>
+								</div>
+							</div>
+
+							<div class="card card-success">
+								<div class="card-header d-flex p-0">
+									<h3 class="card-title p-3">Konfigurasi Awal</h3>
+								</div>
+								<div class="card-body">
+									<ol class="list-group list-group-numbered">
+										<li class="list-group-item">
+											Sangat disarankan untuk menggunakan browser <a href="https://www.google.com/chrome/" target="_blank">Google Chrome</a>
+										</li>
+										<li class="list-group-item">
+											Isi terlebih dahulu nomor whatsapp pegawai yang akan dikirimkan pesan pada menu <a href="<?php echo base_url('kontak'); ?>">Pengaturan > kontak</a>
+										</li>										
+										<li class="list-group-item">
+											Install ekstensi <a href="https://chrome.google.com/webstore/detail/force-background-tab/gidlfommnbibbmegmgajdbikelkdcmcl" target="_blank">Force Background Tab</a>
+										</li>
+										<li class="list-group-item">
+											Install ekstensi <a href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo" target="_blank">Tampermonkey</a>
+										</li>
+										<li class="list-group-item">
+											Install script berikut <a href="https://openuserjs.org/install/topyk/SNOW.user.js" target="_blank">SNOW</a>
+										</li>
+										<li class="list-group-item">
+											<img src="<?php echo base_url('asset/img/img1.png'); ?>" class="img-fluid">
+										</li>										
+										<li class="list-group-item">
+											Setelah berhasil, silahkan dilihat cara penggunaan di bawah ini
+										</li>
+									</ol>
 								</div>
 							</div>
 
@@ -69,25 +102,56 @@
 								<div class="card-header d-flex p-0">
 									<h3 class="card-title p-3">Cara penggunaan</h3>
 								</div>
-								<div class="card-body">
-									<p>Sebelum menggunakan aplikasi ini, saya sarankan menggunakan browser google chrome yang terbaru. Silahkan kunjungi <a href="https://web.whatsapp.com/">Web Whatsapp</a> dan login menggunakan akun whatsapp yang akan digunakan untuk mengirimkan pesan. Pastikan centang kotak di bawah QR Code. Kemudian scan QR Code. Tutup tab whatsapp namun biarkan akunnya tetap login.</p>
-									<p>Install ekstensi <a href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo">Tampermonkey</a> kemudian buka ekstensinya dan pilih menu dashboard.</p>
-									<img src="<?php echo base_url('asset/img/img1.png'); ?>" class="img-fluid">
-									<p>Pilih tab Utilities, lakukan import file <a href="<?php echo base_url('tampermonkey_scripts.zip'); ?>">tampermonkey_scripts.zip</a></p>
-									<img src="<?php echo base_url('asset/img/img2.png'); ?>" class="img-fluid">
-									<p>Akan muncul script yang akan diimport, pilih import.</p>
-									<img src="<?php echo base_url('asset/img/img3.png'); ?>" class="img-fluid">
-									<p>Buka script yang telah diimport dan sesuaikan alamat IP SERVER</p>
-									<img src="<?php echo base_url('asset/img/img4.png'); ?>" class="img-fluid">
-									<img src="<?php echo base_url('asset/img/img5.png'); ?>" class="img-fluid">
-									<p class="mt-3">Untuk memulai mengirimkan notifikasi</p>
-									<ol>
-										<li>Isi terlebih dahulu data nomor WA Ketua, Panitera, Hakim, Panitera Pengganti dan Jurusita pada menu Pengaturan > <a href="<?php echo base_url('kontak'); ?>">Kontak</a>.</li>
-										<li>Silahkan memilih menu <a href="<?php echo base_url('waku'); ?>">Cek Notif</a>. Sistem akan mengambil informasi yang akan dikirimkan kepada pihak dan juga pegawai.</li>
-										<li>Sistem akan otomatis beralih ke halaman Kirim WA. Kemudian sistem akan mengirimkan notifikasi kepada pihak.</li>
-										<li>Ketika semua notifikasi sudah terkirim kepada pihak, sistem akan otomatis memeriksa kembali informasi yang baru untuk dikirimkan kepada pihak.</li>
-									</ol>
-								</div>
+								<ol class="list-group list-group-numbered">
+									<li class="list-group-item">
+										Buka ekstensi Tampermonkey dengan cara klik <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=dashboard" target="_blank">di sini</a>
+									</li>
+									<li class="list-group-item">
+										Apabila muncul error seperti ini, silahkan tekan tombol Ctrl+r atau F5
+									</li>
+									<li class="list-group-item">
+										<img src="<?php echo base_url('asset/img/img2.png'); ?>" class="img-fluid">
+									</li>
+									<li class="list-group-item">
+										Disable terlebih dahulu script SNOW dengan cara mengklik tombol pada kolom Enabled. Pastikan hasilnya seperti gambar di bawah ini
+									</li>
+									<li class="list-group-item">
+										<img src="<?php echo base_url('asset/img/img3.png'); ?>" class="img-fluid">
+									</li>
+									<li class="list-group-item">
+										Buka <a href="https://web.whatsapp.com/" target="_blank">WhatsApp Web</a> dan silahkan scan QR Code untuk login. Pastikan login sampai selesai mengunduh pesan dan muncul daftar chat.
+									</li>
+									<li class="list-group-item">
+										<img src="<?php echo base_url('asset/img/img4.png'); ?>" class="img-fluid">
+									</li>
+									<li class="list-group-item">
+										Setelah berhasil login, silahkan tutup tab WhatsApp Web
+									</li>
+									<li class="list-group-item">
+										Buka kembali ekstensi <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=dashboard" target="_blank">Tampermonkey</a> dan enable script SNOW
+									</li>
+									<li class="list-group-item">
+										<img src="<?php echo base_url('asset/img/img5.png'); ?>" class="img-fluid">
+									</li>					
+									<li class="list-group-item">
+										Tutup semua tab yang terbuka kecuali aplikasi ini. Kemudian pilih menu <a href="<?php echo base_url('waku'); ?>">Cek Notif</a> untuk mengambil data pesan yang akan dikirimkan
+									</li>
+									<li class="list-group-item">
+										Setelah selesai mengambil data pesan, aplikasi akan otomatis mengirimkan pesan ke nomor whatsapp yang sudah tersimpan di database
+									</li>
+									<li class="list-group-item">
+										Mohon diperhatikan terlebih dahulu apakah aplikasi berhasil mengirimkan pesan atau tidak. Apabila gagal, silahkan hubungi administrator.
+									</li>
+									<li class="list-group-item">
+										Apabila muncul pesan seperti di bawah ini, silahkan klik tombol always allow
+									</li>
+									<li class="list-group-item">
+										<img src="<?php echo base_url('asset/img/img6.png'); ?>" class="img-fluid">
+									</li>
+									<li class="list-group-item">
+										Apabila berhasil mengirimkan pesan, silahkan dibiarkan saja. Aplikasi akan otomatis mengambil data pesan yang baru apabila semua data pesan sebelumnya sudah berhasil dikirim
+									</li>
+								</ol>								
 							</div>
 						</div>
 					</div>
@@ -112,65 +176,7 @@
 	<script src="<?php echo base_url('asset/dist/js/adminlte.min.js'); ?>"></script>
 	<!-- AdminLTE for demo purposes -->
 	<script src="<?php echo base_url('asset/dist/js/demo.js'); ?>"></script>
-	<script type="text/javascript">
-		const tkn = "<?php echo $this->session->userdata('tkn'); ?>";
-		const nama_pa = "<?php echo $this->session->userdata('nama_pa'); ?>";
-		const nama_pa_pendek = "<?php echo $this->session->userdata('nama_pa_pendek'); ?>";
-
-		$(document).ready(function(){
-			$("#sidebar_home").addClass("active");
-			$.ajax({
-				url: "https://raw.githubusercontent.com/topyk27/snow/main/asset/mine/token/token.json",
-				method: "GET",
-				dataType: "JSON",
-				beforeSend: function(){
-					$(".loader2").show();
-				},
-				success: function(data)
-				{
-					try{
-						if(nama_pa==data[nama_pa_pendek][0].nama_pa && nama_pa_pendek==data[nama_pa_pendek][0].nama_pa_pendek && tkn==data[nama_pa_pendek][0].token)
-						{
-							
-						}
-						else
-						{
-							location.replace("<?php echo base_url('setting/awal'); ?>");
-						}
-					}
-					catch(err)
-					{
-						location.replace("<?php echo base_url('setting/awal'); ?>");
-					}
-					$(".loader2").hide();
-				},
-				error: function(e)
-				{
-					$.ajax({
-						url: "<?php echo base_url('asset/mine/token/token.json'); ?>",
-						method: "GET",
-						dataType: 'json',
-						success: function(lokal)
-						{
-							if(nama_pa==lokal[nama_pa_pendek][0].nama_pa && nama_pa_pendek==lokal[nama_pa_pendek][0].nama_pa_pendek && tkn==lokal[nama_pa_pendek][0].token)
-							{
-								
-							}
-							else
-							{
-								location.replace("<?php echo base_url('setting/awal'); ?>");
-							}
-							$(".loader2").hide();
-						},
-						error: function(err)
-						{
-							$(".loader2").hide();
-							alert('Gagal dapat data token, harap hubungi administrator');
-						}
-					});
-				}
-			});
-		});
-	</script>
+	<script>const tkn = "<?php echo $this->session->userdata('tkn'); ?>";const nama_pa = "<?php echo $this->session->userdata('nama_pa'); ?>";const nama_pa_pendek = "<?php echo $this->session->userdata('nama_pa_pendek'); ?>";const base_url = "<?php echo base_url(); ?>";</script>
+	<script src="<?php echo base_url('asset/mine/js/v_home.min.js'); ?>"></script>
 </body>
 </html>
