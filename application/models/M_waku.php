@@ -132,6 +132,7 @@ class M_waku extends CI_Model
 
     function _nomor_hp_indo($nomor_hp)
     {
+        $nomor_hp = str_replace(["-","+"],"",$nomor_hp);
         $ptn = "/^0/";
         $rpltxt = "62";
         return preg_replace($ptn, $rpltxt, $nomor_hp);
@@ -164,6 +165,10 @@ class M_waku extends CI_Model
             {
                 foreach ($kweri_daftar->result() as $row)
                 {
+                    if($row->telp1=="-")
+                    {
+                        continue;
+                    }
                     $cari = array("#jenis_perkara#", "#namap#", "#tgl_daftar#", "#noperk#", "#nama_pa#");
                     $ganti = array($row->jenis_perkara_nama, str_replace("'", "''", $row->namap), $row->tgl_daftar, $row->nomor_perkara,$this->nama_pa);
                     $pesan = str_replace($cari, $ganti, $template[7]);
@@ -207,6 +212,10 @@ class M_waku extends CI_Model
 
                 foreach ($kweri_daftar->result() as $row) {
 
+                    if($row->telp_pengacara=="-")
+                    {
+                        continue;
+                    }
                     $pesan = "E-Court: " . $row->nomor_ecourt . " telah terdaftar dengan no perkara: " . $row->nomor_perkara . " pesan ini dikirim otomatis oleh " . $this->nama_pa;
                     $telp1 = $this->_nomor_hp_indo($row->telp_pengacara);
                     $tanggals = date("Y-m-d H:i:s");
@@ -250,6 +259,10 @@ class M_waku extends CI_Model
             if ($kweri_akta->num_rows() > 0) {
 
                 foreach ($kweri_akta->result() as $row) {
+                    if($row->telp1=="-")
+                    {
+                        continue;
+                    }
                     $cari=array("#noperk#","#tgl_ac#","#nomor_ac","#nama_pa#");
                     $ganti=array($row->nomor_perkara,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
@@ -285,6 +298,10 @@ class M_waku extends CI_Model
             if ($kweri_akta->num_rows() > 0) {
 
                 foreach ($kweri_akta->result() as $row) {
+                    if($row->telp1=="-")
+                    {
+                        continue;
+                    }
                     $cari=array("#noperk#","#tgl_ac#","#nomor_ac","#nama_pa#");
                     $ganti=array($row->nomor_perkara,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
@@ -328,6 +345,10 @@ class M_waku extends CI_Model
             if ($kweri_akta->num_rows() > 0) {
 
                 foreach ($kweri_akta->result() as $row) {
+                    if($row->telp_pengacara=="-")
+                    {
+                        continue;
+                    }
                     $cari=array("#noperk#","#tgl_ac#","#nomor_ac","#nama_pa#");
                     $ganti=array($row->nomor_perkara,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
@@ -375,8 +396,7 @@ class M_waku extends CI_Model
             if ($kweri_psp->num_rows() > 0) {
 
 
-                foreach ($kweri_psp->result() as $row) {
-
+                foreach ($kweri_psp->result() as $row) {                    
                     $psp = $this->db->query("select date_format(max(dikirim),'%Y-%m-%d') as tgl from $this->dbwa.sisa_panjar where perkara_id=$row->perkara_id")->row();
                     if ((is_null($psp->tgl)) or (empty($psp->tgl))) {
 
@@ -384,7 +404,7 @@ class M_waku extends CI_Model
                         $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
                         $pesan=str_replace($cari,$ganti,$template[10]);
 
-                        if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
+                        if (isset($row->telp_pengacara) and !empty($row->telp_pengacara) and $row->telp_pengacara != "-") {
                             $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
                             $tanggals = date("Y-m-d H:i:s");
                             $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
@@ -392,7 +412,7 @@ class M_waku extends CI_Model
                             $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pengacara','$pesan','wa','sisa_panjar','$id_pesan')");
                         } else {
 
-                            if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
+                            if (isset($row->telp_pihak) and !empty($row->telp_pihak) and $row->telp_pihak != "-") {
                                 $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
                                 $tanggals = date("Y-m-d H:i:s");
                                 $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
@@ -414,7 +434,7 @@ class M_waku extends CI_Model
                             $cari=array("#noperk#","#saldo#","#nama_pa#");
                             $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
                             $pesan=str_replace($cari,$ganti,$template[10]);
-                            if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
+                            if (isset($row->telp_pengacara) and !empty($row->telp_pengacara) and $row->telp_pengacara != "-") {
                                 $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
                                 $tanggals = date("Y-m-d H:i:s");
                                 $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
@@ -423,7 +443,7 @@ class M_waku extends CI_Model
                                 $pesan_psp[]=$pesan;
                             } else {
 
-                                if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
+                                if (isset($row->telp_pihak) and !empty($row->telp_pihak) and $row->telp_pihak != "-") {
                                     $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
                                     $tanggals = date("Y-m-d H:i:s");
                                     $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
@@ -480,7 +500,7 @@ class M_waku extends CI_Model
                         $cari=array("#noperk#","#saldo#","#nama_pa#");
                         $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
                         $pesan=str_replace($cari,$ganti,$template[10]);                   
-                        if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
+                        if (isset($row->telp_pengacara) and !empty($row->telp_pengacara) and $row->telp_pengacara != "-") {
                             $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
                             $tanggals = date("Y-m-d H:i:s");
                             $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
@@ -489,7 +509,7 @@ class M_waku extends CI_Model
                             $pesan_psp[]=$pesan;
                         } else {
 
-                            if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
+                            if (isset($row->telp_pihak) and !empty($row->telp_pihak) and $row->telp_pihak != "-") {
                                 $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
                                 $tanggals = date("Y-m-d H:i:s");
                                 $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
@@ -513,7 +533,7 @@ class M_waku extends CI_Model
                             $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
                             $pesan=str_replace($cari,$ganti,$template[10]);
                            
-                            if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
+                            if (isset($row->telp_pengacara) and !empty($row->telp_pengacara) and $row->telp_pengacara != "-") {
                                 $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
                                 $tanggals = date("Y-m-d H:i:s");
                                 $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
@@ -522,7 +542,7 @@ class M_waku extends CI_Model
                                 $pesan_psp[]=$pesan;
                             } else {
 
-                                if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
+                                if (isset($row->telp_pihak) and !empty($row->telp_pihak) and $row->telp_pihak != "-") {
                                     $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
                                     $tanggals = date("Y-m-d H:i:s");
                                     $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
@@ -580,7 +600,7 @@ class M_waku extends CI_Model
                         $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
                         $pesan=str_replace($cari,$ganti,$template[10]);
                         
-                        if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
+                        if (isset($row->telp_pengacara) and !empty($row->telp_pengacara) and $row->telp_pengacara != "-") {
                             $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
                             $tanggals = date("Y-m-d H:i:s");
                             $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
@@ -589,7 +609,7 @@ class M_waku extends CI_Model
                             $pesan_psp[]=$pesan;
                         } else {
 
-                            if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
+                            if (isset($row->telp_pihak) and !empty($row->telp_pihak) and $row->telp_pihak != "-") {
                                 $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
                                 $tanggals = date("Y-m-d H:i:s");
                                 $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
@@ -612,7 +632,7 @@ class M_waku extends CI_Model
                             $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
                             $pesan=str_replace($cari,$ganti,$template[10]);
                            
-                            if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
+                            if (isset($row->telp_pengacara) and !empty($row->telp_pengacara) and $row->telp_pengacara != "-") {
                                 $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
                                 $tanggals = date("Y-m-d H:i:s");
                                 $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
@@ -621,7 +641,7 @@ class M_waku extends CI_Model
                                 $pesan_psp[]=$pesan;
                             } else {
 
-                                if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
+                                if (isset($row->telp_pihak) and !empty($row->telp_pihak) and $row->telp_pihak != "-") {
                                     $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
                                     $tanggals = date("Y-m-d H:i:s");
                                     $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
@@ -678,7 +698,7 @@ class M_waku extends CI_Model
                         $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
                         $pesan=str_replace($cari,$ganti,$template[10]);
                       
-                        if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
+                        if (isset($row->telp_pengacara) and !empty($row->telp_pengacara) and $row->telp_pengacara != "-") {
                             $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
                             $tanggals = date("Y-m-d H:i:s");
                             $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
@@ -687,7 +707,7 @@ class M_waku extends CI_Model
                             $pesan_psp[]=$pesan;
                         } else {
 
-                            if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
+                            if (isset($row->telp_pihak) and !empty($row->telp_pihak) and $row->telp_pihak != "-") {
                                 $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
                                 $tanggals = date("Y-m-d H:i:s");
                                 $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
@@ -709,7 +729,7 @@ class M_waku extends CI_Model
                             $cari=array("#noperk#","#saldo#","#nama_pa#");
                             $ganti=array($row->nomor_perkara,number_format($row->saldo, 2, ',', '.'),$this->nama_pa);                        
                             $pesan=str_replace($cari,$ganti,$template[10]);
-                            if (isset($row->telp_pengacara) and !empty($row->telp_pengacara)) {
+                            if (isset($row->telp_pengacara) and !empty($row->telp_pengacara) and $row->telp_pengacara != "-") {
                                 $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
                                 $tanggals = date("Y-m-d H:i:s");
                                 $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
@@ -718,7 +738,7 @@ class M_waku extends CI_Model
                                 $pesan_psp[]=$pesan;
                             } else {
 
-                                if (isset($row->telp_pihak) and !empty($row->telp_pihak)) {
+                                if (isset($row->telp_pihak) and !empty($row->telp_pihak) and $row->telp_pihak != "-") {
                                     $telp_pihak = $this->_nomor_hp_indo($row->telp_pihak);
                                     $tanggals = date("Y-m-d H:i:s");
                                     $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo','".str_replace("'","''",$row->pihak)."','$row->telp_pihak','$pesan','$tanggals')");
@@ -768,7 +788,7 @@ class M_waku extends CI_Model
 
                     if (isset($row->efiling_id)) {
 
-                        if (isset($row->tlp_pengacara) and !empty($row->tlp_pengacara)) {
+                        if (isset($row->tlp_pengacara) and !empty($row->tlp_pengacara) and $row->tlp_pengacara != "-") {
 
                             //pengacara
                             if ($row->sidangke == 1) {
@@ -787,7 +807,7 @@ class M_waku extends CI_Model
                         }
 
 
-                        if (isset($row->tlp_pihak1) and !empty($row->tlp_pihak1)) {
+                        if (isset($row->tlp_pihak1) and !empty($row->tlp_pihak1) and $row->tlp_pihak1 != "-") {
                             //pihak
                             $cari=array("#noperk#","#ke#","#tgl_sidang#","#nama_pa#");
                             $ganti=array($row->nomor_perkara,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);                        
@@ -804,7 +824,7 @@ class M_waku extends CI_Model
 
                     } else {
 
-                        if (isset($row->tlp_pengacara) and !empty($row->tlp_pengacara)) {
+                        if (isset($row->tlp_pengacara) and !empty($row->tlp_pengacara) and $row->tlp_pengacara != "-") {
                             //pengacara
                             $cari=array("#noperk#","#ke#","#tgl_sidang#","#nama_pa#");
                             $ganti=array($row->nomor_perkara,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);                        
@@ -819,7 +839,7 @@ class M_waku extends CI_Model
                         }
 
 
-                        if (isset($row->tlp_pihak1) and !empty($row->tlp_pihak1)) {
+                        if (isset($row->tlp_pihak1) and !empty($row->tlp_pihak1) and $row->tlp_pihak1 != "-") {
                             //pihak
                             $cari=array("#noperk#","#ke#","#tgl_sidang#","#nama_pa#");
                             $ganti=array($row->nomor_perkara,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);                        
@@ -856,7 +876,12 @@ class M_waku extends CI_Model
             {
                 foreach($tunda_sidang->result() as $row)
                 {
+                    
                     $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
+                    if($hp_js->nomorhp=="-")
+                    {
+                        continue;
+                    }
                     $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
                     $alasan_tunda = "";
                     if($row->sidangke>1)
@@ -941,17 +966,22 @@ class M_waku extends CI_Model
                     if($jenis=='Gugatan')                    
                     {
                         $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
-                        $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
-                        $nama = $row->jurusita_nama;
-                        $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_js,'$nama','$pesan',NOW())");
-                        $id_pesan = $this->db->insert_id();
-                        $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_js', '$pesan', 'wa','putus','$id_pesan')");
+                        if($hp_js->nomorhp != "-")
+                        {
+                            $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
+                            $nama = $row->jurusita_nama;
+                            $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_js,'$nama','$pesan',NOW())");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_js', '$pesan', 'wa','putus','$id_pesan')");
+                        }
                     }
                     // $tanggals = date("Y-m-d H:i:s");
-                    
-                    $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_kasir,'$nama_kasir','$pesan',NOW())");
-                    $id_pesan = $this->db->insert_id();
-                    $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_kasir', '$pesan', 'wa','putus','$id_pesan')");
+                    if($kasir->nomorhp != "-")
+                    {
+                        $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_kasir,'$nama_kasir','$pesan',NOW())");
+                        $id_pesan = $this->db->insert_id();
+                        $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_kasir', '$pesan', 'wa','putus','$id_pesan')");
+                    }
                     $pesan_putus[] = $pesan;
                 }
             }
@@ -1000,7 +1030,7 @@ class M_waku extends CI_Model
                 {
                     $perkara_kirim = implode(',', $perk);
                     $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                    if (!empty($hpketua->nomorhp))
+                    if (!empty($hpketua->nomorhp) and $hpketua->nomorhp != "-")
                     {
                         $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
                         $tanggals = date("Y-m-d H:i:s");
@@ -1021,7 +1051,7 @@ class M_waku extends CI_Model
                             {
                                 $perkara_kirim = implode(',', $perk2);
                                 $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                                if (!empty($hpketua->nomorhp))
+                                if (!empty($hpketua->nomorhp) and $hpketua->nomorhp != "-")
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
                                     $tanggals = date("Y-m-d H:i:s");
@@ -1039,7 +1069,7 @@ class M_waku extends CI_Model
                                 {
                                     $perkara_kirim = implode(',', $perk2);
                                     $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                                    if (!empty($hpketua->nomorhp))
+                                    if (!empty($hpketua->nomorhp) and $hpketua->nomorhp != "-")
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
                                         $tanggals = date("Y-m-d H:i:s");
@@ -1065,7 +1095,7 @@ class M_waku extends CI_Model
                 {
                     $pesan = "SIPP: Ada sebanyak " . $pp->jumlah . " perkara yang belum ada penetapan PP dan jurusita lebih dari 4 hari setelah pendaftaran, dikirim otomatis oleh $this->nama_pa";
                     $hppanitera = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where jabatan='panitera'")->row();
-                    if (!empty($hppanitera->nomorhp))
+                    if (!empty($hppanitera->nomorhp) and $hppanitera->nomorhp != "-")
                     {
                         $nomorhp = $this->_nomor_hp_indo($hppanitera->nomorhp);
                         $tanggals = date("Y-m-d H:i:s");
@@ -1129,7 +1159,7 @@ class M_waku extends CI_Model
                             {
                                 $perkara_kirim = implode(',', $perk);
                                 $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
-                                if (!empty($hpkm->nomorhp))
+                                if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                     $tanggals = date("Y-m-d H:i:s");
@@ -1150,7 +1180,7 @@ class M_waku extends CI_Model
                                         {
                                             $perkara_kirim = implode(',', $perk2);
                                             $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
-                                            if (!empty($hpkm->nomorhp))
+                                            if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                                 $tanggals = date("Y-m-d H:i:s");
@@ -1168,7 +1198,7 @@ class M_waku extends CI_Model
                                             {
                                                 $perkara_kirim = implode(',', $perk2);
                                                 $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
-                                                if (!empty($hpkm->nomorhp))
+                                                if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                                 {
                                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                                     $tanggals = date("Y-m-d H:i:s");
@@ -1208,7 +1238,7 @@ class M_waku extends CI_Model
                             {
                                 $pesan = " SIPP: Nomor perkara " . $row->nomor_perkara . " PP " . $row->panitera_nama . " belum diisi tundaan sidangnya, sidang terakhir " . $tanggal_sidang . " dikirim $this->nama_pa";
                                 $pp = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$row->panitera_id and jabatan in ('panitera','pp')")->row();
-                                if (!empty($pp->nomorhp))
+                                if (!empty($pp->nomorhp) and $pp->nomorhp != "-")
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($pp->nomorhp);
                                     $tanggals = date("Y-m-d H:i:s");
@@ -1280,7 +1310,7 @@ class M_waku extends CI_Model
                                 {
                                     $perkara_kirim = implode(',', $perk);
                                     $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
-                                    if (!empty($hpkm->nomorhp))
+                                    if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                         $tanggals = date("Y-m-d H:i:s");
@@ -1302,7 +1332,7 @@ class M_waku extends CI_Model
                                         {
                                             $perkara_kirim = implode(',', $perk2);
                                             $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
-                                            if (!empty($hpkm->nomorhp))
+                                            if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                                 $tanggals = date("Y-m-d H:i:s");
@@ -1321,7 +1351,7 @@ class M_waku extends CI_Model
                                             {
                                                 $perkara_kirim = implode(',', $perk2);
                                                 $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
-                                                if (!empty($hpkm->nomorhp))
+                                                if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                                 {
                                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                                     $tanggals = date("Y-m-d H:i:s");
@@ -1422,7 +1452,7 @@ class M_waku extends CI_Model
                                 {
                                     $perkara_kirim = implode(',', $perk);
                                     $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                                    if (!empty($hpkm->nomorhp))
+                                    if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                         $tanggals = date("Y-m-d H:i:s");
@@ -1444,7 +1474,7 @@ class M_waku extends CI_Model
                                         {
                                             $perkara_kirim = implode(',', $perk2);
                                             $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                                            if (!empty($hpkm->nomorhp))
+                                            if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                                 $tanggals = date("Y-m-d H:i:s");
@@ -1462,7 +1492,7 @@ class M_waku extends CI_Model
                                             {
                                                 $perkara_kirim = implode(',', $perk2);
                                                 $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                                                if (!empty($hpkm->nomorhp))
+                                                if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                                 {
                                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                                     $tanggals = date("Y-m-d H:i:s");

@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $config['database_sipp']='sipp';
 $config['database_wa']='waku';
 $config['web_drivethru'] = 'http://w-drivethru.pa-tenggarong.go.id/pengambilan/quick/';
-$config['version'] = '1.0.0';
+$config['version'] = '1.0.1';
 /*
 konfigurasi dibawah ini setting awal yang akan dimulai dinotifikasi;
 */

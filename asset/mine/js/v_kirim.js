@@ -4,6 +4,7 @@ function getPesan()
 {
     let sukses;
     var current = new Date();
+    let nmr;
     $.ajax({
         type: "ajax",
         // url: "<?php echo base_url('waku/getPesan'); ?>",
@@ -24,6 +25,7 @@ function getPesan()
                 isipesan = pesan[0].TextDecoded.replace(/ /g,"+");
                 sok_id = pesan[0].ID;
                 sukses = true;
+                nmr = nomor;
                 if(!isNaN(nomor)) //cek betulan nomor atau bukan
                 {
                     $("span.time").last().append(current.toLocaleTimeString());
@@ -74,7 +76,7 @@ function getPesan()
             if(sukses)
             {
                 setTimeout(function(){
-                    cek_terkirim(sok_id);
+                    cek_terkirim(sok_id,nmr);
                 },20000);
             }
             // console.log("kelar");
@@ -142,7 +144,7 @@ function deletePesan(id) {
     });
 }
 
-function cek_terkirim(id) {
+function cek_terkirim(id,nmr) {
     $.ajax({
         type: "POST",
         // url: "<?php echo base_url('waku/cek_terkirim'); ?>",
@@ -163,7 +165,7 @@ function cek_terkirim(id) {
             {
                 $(document).Toasts('create', {
                     class: 'bg-danger',
-                    title: 'Gagal kirim pesan',
+                    title: 'Gagal kirim pesan '+nmr,
                     subtitle: 'Error',
                     body: 'Pastikan nomor terdaftar di whatsapp, apabila pesan ke nomor lain mengalami error juga, silahkan hubungi administrator'
                 });
@@ -172,7 +174,7 @@ function cek_terkirim(id) {
             else
             {
                 setTimeout(function(){
-                    cek_terkirim(id);
+                    cek_terkirim(id,nmr);
                 }, 10000);
             }
         },
@@ -186,7 +188,7 @@ function cek_terkirim(id) {
             });
             console.log(err);
             setTimeout(function(){
-                cek_terkirim(id);
+                cek_terkirim(id,nmr);
             }, 10000);
         }
     });
