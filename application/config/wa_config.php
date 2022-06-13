@@ -8,10 +8,10 @@ $config['version'] = '1.0.0';
 /*
 konfigurasi dibawah ini setting awal yang akan dimulai dinotifikasi;
 */
-$config['mulai_tgl_daftar']='2023-01-01';
+$config['mulai_tgl_daftar']='2022-06-01';
 //mulai sejak tanggal akan di notifikasi format tanggal= 'tahun-bulan-tanggal' atau 'Y-m-d';
 
-$config['mulai_tgl_ac']='2022-04-01';
+$config['mulai_tgl_ac']='2022-06-01';
 //mulai sejak tanggal [mulai_tgl_ac] notifikasi akan dikirim, format tanggal= 'tahun-bulan-tanggal' atau 'Y-m-d', tanggal dan bulan format 2 digit
 
 $config['mulai_notif_ac']=3;

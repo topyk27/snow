@@ -41,6 +41,6 @@ class Welcome extends CI_Controller {
 
 	// public function tes()
 	// {
-	// 	echo json_encode($this->m_outbox->get_id_pesan_dan_tabel(1));
+	// 	echo ini_get('max_execution_time');
 	// }
 }
