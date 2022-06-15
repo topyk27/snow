@@ -119,7 +119,11 @@ function deletePesan(id) {
             }
             else
             {
+                sukses = false;
                 $("div.timeline-body").last().append("<br>Gagal hapus pesan dari outbox, mohon periksa internet anda.");
+                setTimeout(() => {
+                    deletePesan(id);
+                }, 30000);
             }
         },
         error: function(err)
@@ -138,7 +142,7 @@ function deletePesan(id) {
                 // $("#step").append("<p>Berhasil hapus pesan, ambil pesan baru lagi.</p>");
                 setTimeout(() => {
                     getPesan();
-                }, 5000);
+                }, 10000);
             }
         }
     });

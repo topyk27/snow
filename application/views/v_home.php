@@ -102,56 +102,85 @@
 								<div class="card-header d-flex p-0">
 									<h3 class="card-title p-3">Cara penggunaan</h3>
 								</div>
-								<ol class="list-group list-group-numbered">
-									<li class="list-group-item">
-										Buka ekstensi Tampermonkey dengan cara klik <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=dashboard" target="_blank">di sini</a>
-									</li>
-									<li class="list-group-item">
-										Apabila muncul error seperti ini, silahkan tekan tombol Ctrl+r atau F5
-									</li>
-									<li class="list-group-item">
-										<img src="<?php echo base_url('asset/img/img2.png'); ?>" class="img-fluid">
-									</li>
-									<li class="list-group-item">
-										Disable terlebih dahulu script SNOW dengan cara mengklik tombol pada kolom Enabled. Pastikan hasilnya seperti gambar di bawah ini
-									</li>
-									<li class="list-group-item">
-										<img src="<?php echo base_url('asset/img/img3.png'); ?>" class="img-fluid">
-									</li>
-									<li class="list-group-item">
-										Buka <a href="https://web.whatsapp.com/" target="_blank">WhatsApp Web</a> dan silahkan scan QR Code untuk login. Pastikan login sampai selesai mengunduh pesan dan muncul daftar chat.
-									</li>
-									<li class="list-group-item">
-										<img src="<?php echo base_url('asset/img/img4.png'); ?>" class="img-fluid">
-									</li>
-									<li class="list-group-item">
-										Setelah berhasil login, silahkan tutup tab WhatsApp Web
-									</li>
-									<li class="list-group-item">
-										Buka kembali ekstensi <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=dashboard" target="_blank">Tampermonkey</a> dan enable script SNOW
-									</li>
-									<li class="list-group-item">
-										<img src="<?php echo base_url('asset/img/img5.png'); ?>" class="img-fluid">
-									</li>					
-									<li class="list-group-item">
-										Tutup semua tab yang terbuka kecuali aplikasi ini. Kemudian pilih menu <a href="<?php echo base_url('waku'); ?>">Cek Notif</a> untuk mengambil data pesan yang akan dikirimkan
-									</li>
-									<li class="list-group-item">
-										Setelah selesai mengambil data pesan, aplikasi akan otomatis mengirimkan pesan ke nomor whatsapp yang sudah tersimpan di database
-									</li>
-									<li class="list-group-item">
-										Mohon diperhatikan terlebih dahulu apakah aplikasi berhasil mengirimkan pesan atau tidak. Apabila gagal, silahkan hubungi administrator.
-									</li>
-									<li class="list-group-item">
-										Apabila muncul pesan seperti di bawah ini, silahkan klik tombol always allow
-									</li>
-									<li class="list-group-item">
-										<img src="<?php echo base_url('asset/img/img6.png'); ?>" class="img-fluid">
-									</li>
-									<li class="list-group-item">
-										Apabila berhasil mengirimkan pesan, silahkan dibiarkan saja. Aplikasi akan otomatis mengambil data pesan yang baru apabila semua data pesan sebelumnya sudah berhasil dikirim
-									</li>
-								</ol>								
+								<div class="card-body">
+									<ol class="list-group list-group-numbered">
+										<li class="list-group-item">
+											Buka ekstensi Tampermonkey dengan cara klik <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=dashboard" target="_blank">di sini</a>
+										</li>
+										<li class="list-group-item">
+											Apabila muncul error seperti ini, silahkan tekan tombol Ctrl+r atau F5
+										</li>
+										<li class="list-group-item">
+											<img src="<?php echo base_url('asset/img/img2.png'); ?>" class="img-fluid">
+										</li>
+										<li class="list-group-item">
+											Disable terlebih dahulu script SNOW dengan cara mengklik tombol pada kolom Enabled. Pastikan hasilnya seperti gambar di bawah ini
+										</li>
+										<li class="list-group-item">
+											<img src="<?php echo base_url('asset/img/img3.png'); ?>" class="img-fluid">
+										</li>
+										<li class="list-group-item">
+											Buka <a href="https://web.whatsapp.com/" target="_blank">WhatsApp Web</a> dan silahkan scan QR Code untuk login. Pastikan login sampai selesai mengunduh pesan dan muncul daftar chat.
+										</li>
+										<li class="list-group-item">
+											<img src="<?php echo base_url('asset/img/img4.png'); ?>" class="img-fluid">
+										</li>
+										<li class="list-group-item">
+											Setelah berhasil login, silahkan tutup tab WhatsApp Web
+										</li>
+										<li class="list-group-item">
+											Buka kembali ekstensi <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=dashboard" target="_blank">Tampermonkey</a> dan enable script SNOW
+										</li>
+										<li class="list-group-item">
+											<img src="<?php echo base_url('asset/img/img5.png'); ?>" class="img-fluid">
+										</li>					
+										<li class="list-group-item">
+											Tutup semua tab yang terbuka kecuali aplikasi ini. Kemudian pilih menu <a href="<?php echo base_url('waku'); ?>">Cek Notif</a> untuk mengambil data pesan yang akan dikirimkan
+										</li>
+										<li class="list-group-item">
+											Setelah selesai mengambil data pesan, aplikasi akan otomatis mengirimkan pesan ke nomor whatsapp yang sudah tersimpan di database
+										</li>
+										<li class="list-group-item">
+											Mohon diperhatikan terlebih dahulu apakah aplikasi berhasil mengirimkan pesan atau tidak. Apabila gagal, silahkan hubungi administrator.
+										</li>
+										<li class="list-group-item">
+											Apabila muncul pesan seperti di bawah ini, silahkan klik tombol always allow
+										</li>
+										<li class="list-group-item">
+											<img src="<?php echo base_url('asset/img/img6.png'); ?>" class="img-fluid">
+										</li>
+										<li class="list-group-item">
+											Apabila berhasil mengirimkan pesan, silahkan dibiarkan saja. Aplikasi akan otomatis mengambil data pesan yang baru apabila semua data pesan sebelumnya sudah berhasil dikirim
+										</li>
+									</ol>
+								</div>
+							</div>
+							<div class="card card-warning">
+								<div class="card-header d-flex p-0">
+									<h3 class="card-title p-3">Update</h3>
+								</div>
+								<div class="card-body">
+									<ol class="list-group list-group-numbered">
+										<li class="list-group-item">
+											Apabila pesan tidak terkirim, silahkan check userscript update
+										</li>
+										<li class="list-group-item">
+											Buka ekstensi Tampermonkey dengan cara klik <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=dashboard" target="_blank">di sini</a>
+										</li>
+										<li class="list-group-item">
+											Apabila muncul error seperti ini, silahkan tekan tombol Ctrl+r atau F5
+										</li>
+										<li class="list-group-item">
+											<img src="<?php echo base_url('asset/img/img2.png'); ?>" class="img-fluid">
+										</li>
+										<li class="list-group-item">
+											Klik cell pada kolom Last Updated untuk mengecek apakah tersedia update, apabila tidak tersedia update dan pesan whatsapp tidak terkirim silahkan hubungi administrator
+										</li>
+										<li class="list-group-item">
+											<img src="<?php echo base_url('asset/img/img7.png'); ?>" class="img-fluid">
+										</li>
+									</ol>
+								</div>
 							</div>
 						</div>
 					</div>

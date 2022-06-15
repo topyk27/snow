@@ -372,6 +372,7 @@ class M_waku extends CI_Model
     {
 
         $pesan_psp=[];
+        return $pesan_psp; //sementara disable dulu, belum ada persetujuan dari boss
         $tahunpsp=$this->config->item('mulai_tahun_psp','wa_config');
         //perkara CT
         try {
@@ -877,7 +878,7 @@ class M_waku extends CI_Model
                 foreach($tunda_sidang->result() as $row)
                 {
                     
-                    $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
+                    $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id AND jabatan='jurusita' ")->row();
                     if($hp_js->nomorhp=="-")
                     {
                         continue;
@@ -895,7 +896,7 @@ class M_waku extends CI_Model
                     {
                         if(empty($alasan_tunda))
                         {
-                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda." pesan ini dikirim otomati oleh ".$this->nama_pa;
+                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda." pesan ini dikirim otomatis oleh ".$this->nama_pa;
                         }
                         else
                         {
@@ -931,9 +932,9 @@ class M_waku extends CI_Model
     function _putus($template)
     {
         $pesan_putus=[];
-        $tahunnotif = $this->config->item('mulai_tahun_notifsipp', 'wa_config');
+        $mulaiputusan = $this->config->item('mulai_putusan', 'wa_config');
         try {
-            $putus = $this->db->query("SELECT a.perkara_id, a.nomor_perkara, b.tanggal_putusan AS tgl_putus, j.jurusita_id, j.jurusita_nama, p.perkara_id AS pts_perkara_id FROM $this->database.perkara_jurusita j, $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.putus p ON a.perkara_id=p.perkara_id AND b.tanggal_putusan=p.tgl_putus WHERE j.perkara_id=a.perkara_id AND (b.tanggal_putusan IS NOT NULL) AND YEAR(tanggal_putusan) >= $tahunnotif AND DATEDIFF(CURDATE(), b.tanggal_putusan) >= 0 AND p.perkara_id IS NULL ORDER BY b.tanggal_putusan ASC ");
+            $putus = $this->db->query("SELECT a.perkara_id, a.nomor_perkara, b.tanggal_putusan AS tgl_putus, j.jurusita_id, j.jurusita_nama, p.perkara_id AS pts_perkara_id, sp.nama as putusan_akhir FROM $this->database.perkara_jurusita j, $this->database.status_putusan sp, $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.putus p ON a.perkara_id=p.perkara_id AND b.tanggal_putusan=p.tgl_putus WHERE j.perkara_id=a.perkara_id AND (b.tanggal_putusan IS NOT NULL) AND tanggal_putusan >= '$mulaiputusan' AND DATEDIFF(CURDATE(), b.tanggal_putusan) >= 0 AND p.perkara_id IS NULL AND b.status_putusan_id = sp.id ORDER BY b.tanggal_putusan ASC ");
             // return $this->db->last_query();
             if($putus->num_rows() > 0)
             {
@@ -958,14 +959,14 @@ class M_waku extends CI_Model
                     {
                         $jenis = '?';
                     }
-                    $cari = array("#jenis#","#noperk#","#tgl_putus#");
-                    $ganti = array($jenis,$row->nomor_perkara,$this->_tgl_indo($row->tgl_putus));
+                    $cari = array("#jenis#","#noperk#","#tgl_putus#","#asu#");
+                    $ganti = array($jenis,$row->nomor_perkara,$this->_tgl_indo($row->tgl_putus),$row->putusan_akhir);
                     $pesan = str_replace($cari,$ganti,$template[12]);
-                    $pesan .= " pesan ini dikirim otomatsi oleh ".$this->nama_pa;
+                    $pesan .= "pesan ini dikirim otomatis oleh ".$this->nama_pa;
                     
                     if($jenis=='Gugatan')                    
                     {
-                        $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id ")->row();
+                        $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id AND jabatan='jurusita' ")->row();
                         if($hp_js->nomorhp != "-")
                         {
                             $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);

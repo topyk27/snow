@@ -23,4 +23,6 @@ $config['mulai_tahun_psp']=2022;
 $config['mulai_tahun_notifsipp']=2022;
 //mulai data sipp tahun akan dinotifikasi;
 
+$config['mulai_putusan']='2022-06-01';
+
  ?>
