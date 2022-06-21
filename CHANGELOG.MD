@@ -2,6 +2,23 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+## [1.0.2] - 2022-06-15
+### Added
+
+### Changed
+- Template notifikasi akta cerai terbit
+
+### Removed
+- Informasi pendaftaran
+- Informasi pendaftaran e-court
+- Informasi jadwal sidang ke pihak
+- Informasi tunda sidang ke jurusita
+- Informasi perkara putus
+- Notifikasi SIPP
+
+### Note
+- informasi dihapus karena belum ada persetujuan dari pimpinan
+
 ## [1.0.1] - 2022-06-15
 ### Added
 

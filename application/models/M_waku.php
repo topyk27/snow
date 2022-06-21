@@ -141,6 +141,7 @@ class M_waku extends CI_Model
     function _daftar($template)
     {
         $pesan_daftar=[];
+        return $pesan_daftar;
         $tgldaftar=$this->config->item('mulai_tgl_daftar','wa_config');
         try
         {
@@ -190,6 +191,7 @@ class M_waku extends CI_Model
     function _daftar_ecourt($template)
     {
         $pesan_daftar=[];
+        return $pesan_daftar;
         $tgldaftar=$this->config->item('mulai_tgl_daftar','wa_config');
 
         try {
@@ -263,8 +265,8 @@ class M_waku extends CI_Model
                     {
                         continue;
                     }
-                    $cari=array("#noperk#","#tgl_ac#","#nomor_ac","#nama_pa#");
-                    $ganti=array($row->nomor_perkara,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
+                    $cari=array("#noperk#","#nama#","#tgl_ac#","#nomor_ac","#nama_pa#");
+                    $ganti=array($row->nomor_perkara,$row->namap,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
                     $pesan .= $web.'p/'.$row->nomor_perkara;
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
@@ -302,8 +304,8 @@ class M_waku extends CI_Model
                     {
                         continue;
                     }
-                    $cari=array("#noperk#","#tgl_ac#","#nomor_ac","#nama_pa#");
-                    $ganti=array($row->nomor_perkara,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
+                    $cari=array("#noperk#","#nama#","#tgl_ac#","#nomor_ac","#nama_pa#");
+                    $ganti=array($row->nomor_perkara,$row->namap,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
                     $pesan .= $web.'t/'.$row->nomor_perkara;
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
@@ -349,8 +351,8 @@ class M_waku extends CI_Model
                     {
                         continue;
                     }
-                    $cari=array("#noperk#","#tgl_ac#","#nomor_ac","#nama_pa#");
-                    $ganti=array($row->nomor_perkara,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
+                    $cari=array("#noperk#","atas nama #nama#","#tgl_ac#","#nomor_ac","#nama_pa#"); //gak usah pakai nama pihak, ribet cuy
+                    $ganti=array($row->nomor_perkara,"",$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
                     $pesan .= $web.$row->nomor_perkara;
                     $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
@@ -769,6 +771,7 @@ class M_waku extends CI_Model
     function _sidang($template)
     {
         $pesan_sidang=[];
+        return $pesan_sidang;
         try {
             $kweri_sidang = $this->db->query("
                                                 SELECT a.tanggal_sidang, a.urutan as sidangke,a.perkara_id,b.nomor_perkara,b.jenis_perkara_nama,c.`perkara_id` AS perkara_id_sidang,
@@ -870,6 +873,7 @@ class M_waku extends CI_Model
     function _tunda_sidang($template)
     {
         $pesan_tunda_sidang = [];
+        return $pesan_tunda_sidang;
         try {
             $tunda_sidang = $this->db->query("SELECT a.tanggal_sidang, a.urutan as sidangke,a.perkara_id,a.agenda,b.nomor_perkara,b.jenis_perkara_nama, c.perkara_id AS perkara_id_sidang, d.efiling_id, d.nomor_register as nomor_ecourt, j.jurusita_id, j.jurusita_nama FROM $this->database.perkara_jurusita j,$this->database.perkara_jadwal_sidang a LEFT JOIN $this->database.perkara b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.sidang_jurusita c ON a.perkara_id=c.perkara_id AND a.tanggal_sidang=c.tanggal_sidang LEFT JOIN $this->database.perkara_efiling d ON b.nomor_perkara=d.nomor_perkara WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null AND j.perkara_id=b.perkara_id ");
             // return $this->db->last_query();
@@ -932,6 +936,7 @@ class M_waku extends CI_Model
     function _putus($template)
     {
         $pesan_putus=[];
+        return $pesan_putus;
         $mulaiputusan = $this->config->item('mulai_putusan', 'wa_config');
         try {
             $putus = $this->db->query("SELECT a.perkara_id, a.nomor_perkara, b.tanggal_putusan AS tgl_putus, j.jurusita_id, j.jurusita_nama, p.perkara_id AS pts_perkara_id, sp.nama as putusan_akhir FROM $this->database.perkara_jurusita j, $this->database.status_putusan sp, $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.putus p ON a.perkara_id=p.perkara_id AND b.tanggal_putusan=p.tgl_putus WHERE j.perkara_id=a.perkara_id AND (b.tanggal_putusan IS NOT NULL) AND tanggal_putusan >= '$mulaiputusan' AND DATEDIFF(CURDATE(), b.tanggal_putusan) >= 0 AND p.perkara_id IS NULL AND b.status_putusan_id = sp.id ORDER BY b.tanggal_putusan ASC ");
@@ -996,6 +1001,7 @@ class M_waku extends CI_Model
     function _notifikasisipp()
     {
         $pesan_notif=[];
+        return $pesan_notif;
         $tahunnotif=$this->config->item('mulai_tahun_notifsipp','wa_config');
         $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='pmh' and datediff(curdate(),dikirim)=0")->row();
         if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
