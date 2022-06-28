@@ -85,7 +85,7 @@ class M_kontak extends CI_Model
 			}
 		}		
 		$nomorhp = $post['nomor_hp'];
-		$this->db->query("INSERT INTO daftar_kontak VALUES ('$nama_pejabat','$jabatan',$idsipp,'$nomorhp') ");
+		$this->db->query("INSERT INTO daftar_kontak VALUES (".$this->db->escape($nama_pejabat).",'$jabatan',$idsipp,'$nomorhp') ");
 		return $this->db->affected_rows();
 	}
 

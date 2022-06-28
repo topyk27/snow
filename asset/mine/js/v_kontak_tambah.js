@@ -49,7 +49,11 @@ $("document").ready(function(){
                         $("select#nama").children().remove();
                         $("select#nama").append("<option value='babi'>Pilih Pegawai</option>");
                         $.each(data['jabatan'], function(k,v){
-                            $("select#nama").append("<option value='"+v.nama_gelar+"#"+v.id+"'>"+v.nama_gelar+"</option>");
+                            $('<option />',{
+                                'value' : v.nama_gelar + '#' + v.id,
+                                'text' : v.nama_gelar
+                            }).appendTo("select#nama");
+                            // $("select#nama").append("<option value='"+v.nama_gelar+"#"+v.id+"'>"+v.nama_gelar+"</option>");
                         });
                         $("input[name='nama']").prop("disabled",true);
                         $("input[name='nama']").hide();

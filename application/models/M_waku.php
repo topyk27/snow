@@ -976,7 +976,7 @@ class M_waku extends CI_Model
                         {
                             $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
                             $nama = $row->jurusita_nama;
-                            $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_js,'$nama','$pesan',NOW())");
+                            $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_js,".$this->db->escape($nama).",'$pesan',NOW())");
                             $id_pesan = $this->db->insert_id();
                             $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_js', '$pesan', 'wa','putus','$id_pesan')");
                         }
@@ -984,7 +984,7 @@ class M_waku extends CI_Model
                     // $tanggals = date("Y-m-d H:i:s");
                     if($kasir->nomorhp != "-")
                     {
-                        $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_kasir,'$nama_kasir','$pesan',NOW())");
+                        $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_kasir,".$this->db->escape($nama_kasir).",'$pesan',NOW())");
                         $id_pesan = $this->db->insert_id();
                         $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_kasir', '$pesan', 'wa','putus','$id_pesan')");
                     }
