@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+## [1.0.3] - 2022-07-06
+### Added
+- Notifikasi jadwal sidang ke pihak T
+- Notifikasi akta cerai ke pihak T
+
+### Changed
+- Template notifikasi
+
+### Removed
+
 ## [1.0.2] - 2022-06-15
 ### Added
 

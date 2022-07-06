@@ -166,19 +166,30 @@ class M_waku extends CI_Model
             {
                 foreach ($kweri_daftar->result() as $row)
                 {
-                    if($row->telp1=="-")
+                    if($row->telp1!="-" || !empty($row->telp1))
                     {
-                        continue;
+                        $cari = array("#jenis_perkara#", "#namap#", "#tgl_daftar#", "#noperk#", "#nama_pa#");
+                        $ganti = array($row->jenis_perkara_nama, str_replace("'", "''", $row->namap), $row->tgl_daftar, $row->nomor_perkara,$this->nama_pa);
+                        $pesan = str_replace($cari, $ganti, $template[7]);
+                        $telp1 = $this->_nomor_hp_indo($row->telp1);
+                        $tanggals = date("Y-m-d H:i:s");
+                        $this->db->query("insert into $this->dbwa.perkara_daftar(perkara_id,nomor_perkara,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_daftar','" . str_replace("'", "''", $row->namap) . "','$row->telp1','$pesan','$tanggals')");
+                        $id_pesan = $this->db->insert_id();
+                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp1','$pesan','wa','perkara_daftar','$id_pesan')");
+                        $pesan_daftar[] = $pesan;                        
                     }
-                    $cari = array("#jenis_perkara#", "#namap#", "#tgl_daftar#", "#noperk#", "#nama_pa#");
-                    $ganti = array($row->jenis_perkara_nama, str_replace("'", "''", $row->namap), $row->tgl_daftar, $row->nomor_perkara,$this->nama_pa);
-                    $pesan = str_replace($cari, $ganti, $template[7]);
-                    $telp1 = $this->_nomor_hp_indo($row->telp1);
-                    $tanggals = date("Y-m-d H:i:s");
-                    $this->db->query("insert into $this->dbwa.perkara_daftar(perkara_id,nomor_perkara,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_daftar','" . str_replace("'", "''", $row->namap) . "','$row->telp1','$pesan','$tanggals')");
-                    $id_pesan = $this->db->insert_id();
-                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp1','$pesan','wa','perkara_daftar','$id_pesan')");
-                    $pesan_daftar[] = $pesan;
+                    if($row->telp2!="-" || !empty($row->telp2))
+                    {
+                        $cari = array("#jenis_perkara#", "#namap#", "#tgl_daftar#", "#noperk#", "#nama_pa#");
+                        $ganti = array($row->jenis_perkara_nama, str_replace("'", "''", $row->namat), $row->tgl_daftar, $row->nomor_perkara,$this->nama_pa);
+                        $pesan = str_replace($cari, $ganti, $template[7]);
+                        $telp2 = $this->_nomor_hp_indo($row->telp2);
+                        $tanggals = date("Y-m-d H:i:s");
+                        $this->db->query("insert into $this->dbwa.perkara_daftar(perkara_id,nomor_perkara,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_daftar','" . str_replace("'", "''", $row->namat) . "','$row->telp2','$pesan','$tanggals')");
+                        $id_pesan = $this->db->insert_id();
+                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp2','$pesan','wa','perkara_daftar','$id_pesan')");
+                        $pesan_daftar[] = $pesan; 
+                    }
                 }
             }
         } catch(Exception $e)
@@ -214,11 +225,11 @@ class M_waku extends CI_Model
 
                 foreach ($kweri_daftar->result() as $row) {
 
-                    if($row->telp_pengacara=="-")
+                    if($row->telp_pengacara=="-" || empty($row->telp_pengacara))
                     {
                         continue;
                     }
-                    $pesan = "E-Court: " . $row->nomor_ecourt . " telah terdaftar dengan no perkara: " . $row->nomor_perkara . " pesan ini dikirim otomatis oleh " . $this->nama_pa;
+                    $pesan = "E-Court: " . $row->nomor_ecourt . " perkara ". $row->jenis_perkara_nama . " telah terdaftar dengan nomor perkara: " . $row->nomor_perkara . " %0aPesan ini dikirim otomatis oleh " . $this->nama_pa;
                     $telp1 = $this->_nomor_hp_indo($row->telp_pengacara);
                     $tanggals = date("Y-m-d H:i:s");
                     $this->db->query("insert into $this->dbwa.perkara_daftar(perkara_id,nomor_perkara,ecourt,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','Y','$row->tgl_daftar','" . str_replace("'", "''", $row->pengacara) . "','$row->telp_pengacara','$pesan','$tanggals')");
@@ -237,7 +248,8 @@ class M_waku extends CI_Model
 
     function _akta($template)
     {
-       $pesan_akta=[];
+        $pesan_akta=[];
+        return $pesan_akta;
         $mulai=$this->config->item('mulai_tgl_ac','wa_config');
         $jarak=$this->config->item('mulai_notif_ac','wa_config');
         $web=$this->config->item('web_drivethru','wa_config');
@@ -261,14 +273,14 @@ class M_waku extends CI_Model
             if ($kweri_akta->num_rows() > 0) {
 
                 foreach ($kweri_akta->result() as $row) {
-                    if($row->telp1=="-")
+                    if($row->telp1=="-" || empty($row->telp1))
                     {
                         continue;
                     }
                     $cari=array("#noperk#","#nama#","#tgl_ac#","#nomor_ac","#nama_pa#");
                     $ganti=array($row->nomor_perkara,$row->namap,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
-                    $pesan .= $web.'p/'.$row->nomor_perkara;
+                    $pesan .= $web.'p/'.$row->nomor_perkara." %0aApabila tautan tidak dapat diklik, silahkan simpan terlebih dahulu nomor ini.";
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
                     $tanggals = date("Y-m-d H:i:s");                    
                     $this->db->query("insert into $this->dbwa.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pihak_id,'".str_replace("'","''",$row->namap)."','$row->telp1','$pesan','$tanggals')");
@@ -300,14 +312,14 @@ class M_waku extends CI_Model
             if ($kweri_akta->num_rows() > 0) {
 
                 foreach ($kweri_akta->result() as $row) {
-                    if($row->telp1=="-")
+                    if($row->telp1=="-" || empty($row->telp1))
                     {
                         continue;
                     }
                     $cari=array("#noperk#","#nama#","#tgl_ac#","#nomor_ac","#nama_pa#");
                     $ganti=array($row->nomor_perkara,$row->namap,$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
-                    $pesan .= $web.'t/'.$row->nomor_perkara;
+                    $pesan .= $web.'t/'.$row->nomor_perkara." %0aApabila tautan tidak dapat diklik, silahkan simpan terlebih dahulu nomor ini.";
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
                     $tanggals = date("Y-m-d H:i:s");                    
                     $this->db->query("insert into $this->dbwa.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pihak_id,'".str_replace("'","''",$row->namap)."','$row->telp1','$pesan','$tanggals')");
@@ -325,12 +337,13 @@ class M_waku extends CI_Model
     function _akta_pengacara($template)
     {
         $pesan_akta=[];
+        return $pesan_akta;
         $mulai=$this->config->item('mulai_tgl_ac','wa_config');
         $jarak=$this->config->item('mulai_notif_ac','wa_config');
         $web=$this->config->item('web_drivethru','wa_config');
         try {
             $kweri_akta = $this->db->query("
-                                            select a.perkara_id,a.nomor_perkara,j.tgl_akta_cerai,DATE_FORMAT(j.tgl_akta_cerai,'%d/%m/%Y') as tgl_ac,j.nomor_akta_cerai,a.jenis_perkara_nama,b.pengacara_id,b.nama as nama_pengacara,d.telepon as telp_pengacara
+                                            select a.perkara_id,a.nomor_perkara,j.tgl_akta_cerai,DATE_FORMAT(j.tgl_akta_cerai,'%d/%m/%Y') as tgl_ac,j.nomor_akta_cerai,a.jenis_perkara_nama,b.pengacara_id,b.nama as nama_pengacara,d.telepon as telp_pengacara, b.pihak_ke
                                             from $this->database.perkara_akta_cerai j
                                             left join $this->database.perkara a 
                                             on j.perkara_id=a.perkara_id
@@ -352,9 +365,10 @@ class M_waku extends CI_Model
                         continue;
                     }
                     $cari=array("#noperk#","atas nama #nama#","#tgl_ac#","#nomor_ac","#nama_pa#"); //gak usah pakai nama pihak, ribet cuy
+                    $pihak = $row->pihak_ke==1 ? 'p' : 't';
                     $ganti=array($row->nomor_perkara,"",$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
-                    $pesan .= $web.$row->nomor_perkara;
+                    $pesan .= $web.$pihak."/".$row->nomor_perkara;
                     $telp_pengacara = $this->_nomor_hp_indo($row->telp_pengacara);
                     $tanggals = date("Y-m-d H:i:s");
                     $this->db->query("insert into $this->dbwa.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pengacara_id,'".str_replace("'","''",$row->nama_pengacara)."','$row->telp_pengacara','$pesan','$tanggals')");
@@ -772,6 +786,7 @@ class M_waku extends CI_Model
     {
         $pesan_sidang=[];
         return $pesan_sidang;
+        // pihak p
         try {
             $kweri_sidang = $this->db->query("
                                                 SELECT a.tanggal_sidang, a.urutan as sidangke,a.perkara_id,b.nomor_perkara,b.jenis_perkara_nama,c.`perkara_id` AS perkara_id_sidang,
@@ -796,9 +811,9 @@ class M_waku extends CI_Model
 
                             //pengacara
                             if ($row->sidangke == 1) {
-                                $pesan = "E-Court: " . $row->nomor_ecourt . " nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang) . " Cek Ecourt untuk cek panggilannya,dikirim otomatis $this->nama_pa";
+                                $pesan = "E-Court: " . $row->nomor_ecourt . " perkara ". $row->jenis_perkara_nama ." dengan nomor perkara: " . $row->nomor_perkara . " atas nama ".$row->pihak1 ." akan sidang ke " . $row->sidangke . " pada " . $this->_tgl_indo($row->tanggal_sidang) . " Cek Ecourt untuk cek panggilannya.%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                             } else {
-                                $pesan = "E-Court: " . $row->nomor_ecourt . " no perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang) . " dikirim otomatis $this->nama_pa";
+                                $pesan = "E-Court: " . $row->nomor_ecourt . " perkara ". $row->jenis_perkara_nama . " dengan nomor perkara: " . $row->nomor_perkara . " atas nama ".$row->pihak1 ." akan sidang ke " . $row->sidangke . " pada " . $this->_tgl_indo($row->tanggal_sidang) . "%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                             }
                             $ecourt = 1;
                             $tlp_pengacara = $this->_nomor_hp_indo($row->tlp_pengacara);
@@ -813,8 +828,8 @@ class M_waku extends CI_Model
 
                         if (isset($row->tlp_pihak1) and !empty($row->tlp_pihak1) and $row->tlp_pihak1 != "-") {
                             //pihak
-                            $cari=array("#noperk#","#ke#","#tgl_sidang#","#nama_pa#");
-                            $ganti=array($row->nomor_perkara,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);                        
+                            $cari=array("#jenis#","#noperk#","#nama#","#ke#","#tgl_sidang#","#nama_pa#");
+                            $ganti=array($row->jenis_perkara_nama,$row->nomor_perkara,$row->pihak1,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);                        
                             $pesan=str_replace($cari,$ganti,$template[5]);
                             $ecourt = 1;
                             $tlp_pihak1 = $this->_nomor_hp_indo($row->tlp_pihak1);
@@ -830,8 +845,8 @@ class M_waku extends CI_Model
 
                         if (isset($row->tlp_pengacara) and !empty($row->tlp_pengacara) and $row->tlp_pengacara != "-") {
                             //pengacara
-                            $cari=array("#noperk#","#ke#","#tgl_sidang#","#nama_pa#");
-                            $ganti=array($row->nomor_perkara,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);                        
+                            $cari=array("#jenis#","#noperk#","#nama#","#ke#","#tgl_sidang#","#nama_pa#");
+                            $ganti=array($row->jenis_perkara_nama,$row->nomor_perkara,$row->pihak1,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);
                             $pesan=str_replace($cari,$ganti,$template[5]);
                             $ecourt = 0;
                             $tlp_pengacara = $this->_nomor_hp_indo($row->tlp_pengacara);
@@ -845,8 +860,8 @@ class M_waku extends CI_Model
 
                         if (isset($row->tlp_pihak1) and !empty($row->tlp_pihak1) and $row->tlp_pihak1 != "-") {
                             //pihak
-                            $cari=array("#noperk#","#ke#","#tgl_sidang#","#nama_pa#");
-                            $ganti=array($row->nomor_perkara,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);                        
+                            $cari=array("#jenis#","#noperk#","#nama#","#ke#","#tgl_sidang#","#nama_pa#");
+                            $ganti=array($row->jenis_perkara_nama,$row->nomor_perkara,$row->pihak1,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);
                             $pesan=str_replace($cari,$ganti,$template[5]);
                             $ecourt = 0;
                             $tlp_pihak1 = $this->_nomor_hp_indo($row->tlp_pihak1);
@@ -857,6 +872,129 @@ class M_waku extends CI_Model
                             $pesan_sidang[]=$pesan;
                         }
 
+                    }
+
+                } //foreach
+            }//num_rows
+
+
+        } catch (Exception $e) {
+
+        }
+        // pihak t pengacara
+        try {
+            $kweri_sidang = $this->db->query("
+                                                SELECT a.tanggal_sidang, a.urutan as sidangke,a.perkara_id,b.nomor_perkara,b.jenis_perkara_nama,c.`perkara_id` AS perkara_id_sidang,
+                                                d.`efiling_id`,d.nomor_register as nomor_ecourt, f.nama as pengacara, f.telepon as tlp_pengacara, h.nama as pihak2, h.telepon as tlp_pihak2
+                                                FROM $this->database.perkara_jadwal_sidang a
+                                                LEFT JOIN $this->database.perkara b ON a.perkara_id=b.perkara_id
+                                                LEFT JOIN $this->dbwa.`sidang` c ON a.perkara_id=c.perkara_id AND a.tanggal_sidang=c.tanggal_sidang 
+                                                LEFT JOIN $this->database.perkara_efiling d ON b.`nomor_perkara`=d.`nomor_perkara`
+                                                left join $this->database.perkara_pengacara e on a.perkara_id=e.perkara_id
+                                                left join $this->database.pihak f on e.pengacara_id = f.id
+                                                left join $this->database.perkara_pihak2 g on a.perkara_id=g.perkara_id
+                                                left join $this->database.pihak h on g.pihak_id=h.id
+                                                WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>'')) AND e.pihak_ke = 2
+                                                ");
+
+            if ($kweri_sidang->num_rows() > 0) {
+                foreach ($kweri_sidang->result() as $row) {
+
+                    if (isset($row->efiling_id)) {
+
+                        if (isset($row->tlp_pengacara) and !empty($row->tlp_pengacara) and $row->tlp_pengacara != "-") {
+
+                            //pengacara
+                            if ($row->sidangke == 1) {
+                                $pesan = "E-Court: " . $row->nomor_ecourt . " perkara ". $row->jenis_perkara_nama ." dengan nomor perkara: " . $row->nomor_perkara . " atas nama ". $row->pihak2 ." akan sidang ke " . $row->sidangke . " pada " . $this->_tgl_indo($row->tanggal_sidang) . " Cek Ecourt untuk cek panggilannya.%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                            } else {
+                                $pesan = "E-Court: " . $row->nomor_ecourt . " perkara ". $row->jenis_perkara_nama . " dengan nomor perkara: " . $row->nomor_perkara . "atas nama ".$row->pihak2 ." akan sidang ke " . $row->sidangke . " pada " . $this->_tgl_indo($row->tanggal_sidang) . "%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                            }
+                            $ecourt = 1;
+                            $tlp_pengacara = $this->_nomor_hp_indo($row->tlp_pengacara);
+                            $tanggals = date("Y-m-d H:i:s");
+                            $this->db->query("insert into $this->dbwa.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'$row->nomor_ecourt','".str_replace("'","''",$row->pengacara)."','$row->tlp_pengacara','$tanggals','$pesan')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$tlp_pengacara',  '$pesan','wa','sidang','$id_pesan')");
+
+                            $pesan_sidang[]=$pesan;
+                        }
+
+                    } else {
+
+                        if (isset($row->tlp_pengacara) and !empty($row->tlp_pengacara) and $row->tlp_pengacara != "-") {
+                            //pengacara
+                            $cari=array("#jenis#","#noperk#","#nama#","#ke#","#tgl_sidang#","#nama_pa#");
+                            $ganti=array($row->jenis_perkara_nama,$row->nomor_perkara,$row->pihak2,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);
+                            $pesan=str_replace($cari,$ganti,$template[5]);
+                            $ecourt = 0;
+                            $tlp_pengacara = $this->_nomor_hp_indo($row->tlp_pengacara);
+                            $tanggals = date("Y-m-d H:i:s");
+                            $this->db->query("insert into $this->dbwa.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'-','".str_replace("'","''",$row->pengacara)."','$row->tlp_pengacara','$tanggals','$pesan')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$tlp_pengacara',  '$pesan','wa','sidang','$id_pesan')");
+                            $pesan_sidang[]=$pesan;
+                        }
+                    }
+
+                } //foreach
+            }//num_rows
+
+
+        } catch (Exception $e) {
+
+        }
+
+        // pihak T
+        try {
+            $kweri_sidang = $this->db->query("
+                                                SELECT a.tanggal_sidang, a.urutan as sidangke,a.perkara_id,b.nomor_perkara,b.jenis_perkara_nama,c.`perkara_id` AS perkara_id_sidang,
+                                                d.`efiling_id`,d.nomor_register as nomor_ecourt, f.nama as pengacara, f.telepon as tlp_pengacara, h.nama as pihak2, h.telepon as tlp_pihak2
+                                                FROM $this->database.perkara_jadwal_sidang a
+                                                LEFT JOIN $this->database.perkara b ON a.perkara_id=b.perkara_id
+                                                LEFT JOIN $this->dbwa.`sidang` c ON a.perkara_id=c.perkara_id AND a.tanggal_sidang=c.tanggal_sidang 
+                                                LEFT JOIN $this->database.perkara_efiling d ON b.`nomor_perkara`=d.`nomor_perkara`
+                                                left join $this->database.perkara_pengacara e on a.perkara_id=e.perkara_id
+                                                left join $this->database.pihak f on e.pengacara_id = f.id
+                                                left join $this->database.perkara_pihak2 g on a.perkara_id=g.perkara_id
+                                                left join $this->database.pihak h on g.pihak_id=h.id
+                                                WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>''))
+                                                ");
+
+            if ($kweri_sidang->num_rows() > 0) {
+                foreach ($kweri_sidang->result() as $row) {
+
+                    if (isset($row->efiling_id)) {
+
+                        if (isset($row->tlp_pihak2) and !empty($row->tlp_pihak2) and $row->tlp_pihak2 != "-") {
+                            //pihak
+                            $cari=array("#jenis#","#noperk#","#nama#","#ke#","#tgl_sidang#","#nama_pa#");
+                            $ganti=array($row->jenis_perkara_nama,$row->nomor_perkara,$row->pihak2,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);                        
+                            $pesan=str_replace($cari,$ganti,$template[5]);
+                            $ecourt = 1;
+                            $tlp_pihak2 = $this->_nomor_hp_indo($row->tlp_pihak2);
+                            $tanggals = date("Y-m-d H:i:s");
+                            $this->db->query("insert into $this->dbwa.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'$row->nomor_ecourt','".str_replace("'","''",$row->pihak2)."','$row->tlp_pihak2','$tanggals','$pesan')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$tlp_pihak2',  '$pesan','wa','sidang','$id_pesan')");
+                            $pesan_sidang[]=$pesan;
+                        }
+
+                    } else {
+
+                        if (isset($row->tlp_pihak2) and !empty($row->tlp_pihak2) and $row->tlp_pihak2 != "-") {
+                            //pihak
+                            $cari=array("#jenis#","#noperk#","#nama#","#ke#","#tgl_sidang#","#nama_pa#");
+                            $ganti=array($row->jenis_perkara_nama,$row->nomor_perkara,$row->pihak2,$row->sidangke,$this->_tgl_indo($row->tanggal_sidang),$this->nama_pa);
+                            $pesan=str_replace($cari,$ganti,$template[5]);
+                            $ecourt = 0;
+                            $tlp_pihak2 = $this->_nomor_hp_indo($row->tlp_pihak2);
+                            $tanggals = date("Y-m-d H:i:s");
+                            $this->db->query("insert into $this->dbwa.sidang(perkara_id,nomor_perkara,tanggal_sidang,ecourt,nomor_ecourt,pihak,nomorhp,dikirim,pesan)values($row->perkara_id,'$row->nomor_perkara','$row->tanggal_sidang',$ecourt,'-','".str_replace("'","''",$row->pihak2)."','$row->tlp_pihak2','$tanggals','$pesan')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$tlp_pihak2',  '$pesan','wa','sidang','$id_pesan')");
+                            $pesan_sidang[]=$pesan;
+                        }
                     }
 
                 } //foreach
@@ -900,11 +1038,11 @@ class M_waku extends CI_Model
                     {
                         if(empty($alasan_tunda))
                         {
-                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda." pesan ini dikirim otomatis oleh ".$this->nama_pa;
+                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda."%0aPesan ini dikirim otomatis oleh ".$this->nama_pa;
                         }
                         else
                         {
-                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda." pesan ini dikirim otomatis oleh ".$this->nama_pa;
+                            $pesan = "E-Court perkara ".$row->jenis_perkara_nama." nomor perkara: " . $row->nomor_perkara . " akan sidang ke " . $row->sidangke . " " . $this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda."%0aPesan ini dikirim otomatis oleh ".$this->nama_pa;
                         }
                         $ecourt = 1;                        
                     }
@@ -912,11 +1050,11 @@ class M_waku extends CI_Model
                     {
                         if(empty($alasan_tunda))
                         {
-                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda." pesan ini dikirim otomatis oleh ".$this->nama_pa;
+                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." dengan agenda ".$row->agenda."%0aPesan ini dikirim otomatis oleh ".$this->nama_pa;
                         }
                         else
                         {
-                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda." pesan ini dikirim otomatis oleh ".$this->nama_pa;
+                            $pesan = "Perkara ".$row->jenis_perkara_nama." nomor perkara: ".$row->nomor_perkara." akan sidang ke ".$row->sidangke." ".$this->_tgl_indo($row->tanggal_sidang)." alasan ditunda ".$alasan_tunda.", dengan agenda sidang berikutnya ".$row->agenda."%0aPesan ini dikirim otomatis oleh ".$this->nama_pa;
                         }
                         $ecourt = 0;
                     }
@@ -972,7 +1110,7 @@ class M_waku extends CI_Model
                     if($jenis=='Gugatan')                    
                     {
                         $hp_js = $this->db->query("SELECT nomorhp FROM $this->dbwa.daftar_kontak WHERE id=$row->jurusita_id AND jabatan='jurusita' ")->row();
-                        if($hp_js->nomorhp != "-")
+                        if($hp_js->nomorhp != "-" || !empty($hp_js->nomorhp))
                         {
                             $hp_js = $this->_nomor_hp_indo($hp_js->nomorhp);
                             $nama = $row->jurusita_nama;
@@ -982,7 +1120,7 @@ class M_waku extends CI_Model
                         }
                     }
                     // $tanggals = date("Y-m-d H:i:s");
-                    if($kasir->nomorhp != "-")
+                    if($kasir->nomorhp != "-" || !empty($kasir->nomorhp))
                     {
                         $this->db->query("INSERT INTO $this->dbwa.putus(perkara_id,nomor_perkara,tgl_putus,nomor_hp,jurusita_nama,pesan,dikirim) VALUES($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_kasir,".$this->db->escape($nama_kasir).",'$pesan',NOW())");
                         $id_pesan = $this->db->insert_id();
@@ -1036,7 +1174,8 @@ class M_waku extends CI_Model
                 if ($jumlah_perkara <= 11)
                 {
                     $perkara_kirim = implode(',', $perk);
-                    $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                    // $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                    $pesan = "Perkara " . $row->nomor_perkara . " belum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis $this->nama_pa";
                     if (!empty($hpketua->nomorhp) and $hpketua->nomorhp != "-")
                     {
                         $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
@@ -1057,7 +1196,8 @@ class M_waku extends CI_Model
                             if ($j == 11)
                             {
                                 $perkara_kirim = implode(',', $perk2);
-                                $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                                // $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                                $pesan = "Perkara " . $row->nomor_perkara . " belum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis $this->nama_pa";
                                 if (!empty($hpketua->nomorhp) and $hpketua->nomorhp != "-")
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
@@ -1075,7 +1215,8 @@ class M_waku extends CI_Model
                                 if ($i == ($jumlah_perkara - 1))
                                 {
                                     $perkara_kirim = implode(',', $perk2);
-                                    $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                                    // $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                                    $pesan = "Perkara " . $row->nomor_perkara . " belum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis $this->nama_pa";
                                     if (!empty($hpketua->nomorhp) and $hpketua->nomorhp != "-")
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
@@ -1100,7 +1241,7 @@ class M_waku extends CI_Model
                 $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='pp' and datediff(curdate(),dikirim)=0")->row();
                 if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                 {
-                    $pesan = "SIPP: Ada sebanyak " . $pp->jumlah . " perkara yang belum ada penetapan PP dan jurusita lebih dari 4 hari setelah pendaftaran, dikirim otomatis oleh $this->nama_pa";
+                    $pesan = "SIPP: Ada sebanyak " . $pp->jumlah . " perkara yang belum ada penetapan PP dan jurusita lebih dari 4 hari setelah pendaftaran.%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                     $hppanitera = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where jabatan='panitera'")->row();
                     if (!empty($hppanitera->nomorhp) and $hppanitera->nomorhp != "-")
                     {
@@ -1165,7 +1306,8 @@ class M_waku extends CI_Model
                             if ($jumlah_perkara <= 11)
                             {
                                 $perkara_kirim = implode(',', $perk);
-                                $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
+                                // $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
+                                $pesan = "Perkara " . $row->nomor_perkara . " belum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis $this->nama_pa";
                                 if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
@@ -1186,7 +1328,8 @@ class M_waku extends CI_Model
                                         if ($j == 11)
                                         {
                                             $perkara_kirim = implode(',', $perk2);
-                                            $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
+                                            // $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
+                                            $pesan = "Perkara " . $row->nomor_perkara . " belum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                             if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
@@ -1204,7 +1347,8 @@ class M_waku extends CI_Model
                                             if ($i == ($jumlah_perkara - 1))
                                             {
                                                 $perkara_kirim = implode(',', $perk2);
-                                                $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
+                                                // $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
+                                                $pesan = "Perkara " . $row->nomor_perkara . " belum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                                 if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                                 {
                                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
@@ -1243,7 +1387,7 @@ class M_waku extends CI_Model
                             $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='sidang' and user_sipp=$row->panitera_id and datediff(curdate(),dikirim)=0")->row();
                             if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                             {
-                                $pesan = " SIPP: Nomor perkara " . $row->nomor_perkara . " PP " . $row->panitera_nama . " belum diisi tundaan sidangnya, sidang terakhir " . $tanggal_sidang . " dikirim $this->nama_pa";
+                                $pesan = " SIPP: Nomor perkara " . $row->nomor_perkara . " PP " . $row->panitera_nama . " belum diisi tundaan sidangnya, sidang terakhir " . $tanggal_sidang . "%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                 $pp = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$row->panitera_id and jabatan in ('panitera','pp')")->row();
                                 if (!empty($pp->nomorhp) and $pp->nomorhp != "-")
                                 {
@@ -1316,7 +1460,8 @@ class M_waku extends CI_Model
                                 if ($jumlah_perkara <= 11)
                                 {
                                     $perkara_kirim = implode(',', $perk);
-                                    $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
+                                    // $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
+                                    $pesan = "Perkara " . $row->nomor_perkara . " sudah materai belum diputus%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                     if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
@@ -1338,7 +1483,8 @@ class M_waku extends CI_Model
                                         if ($j == 11)
                                         {
                                             $perkara_kirim = implode(',', $perk2);
-                                            $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
+                                            // $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
+                                            $pesan = "Perkara " . $row->nomor_perkara . " sudah materai belum diputus%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                             if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
@@ -1357,7 +1503,8 @@ class M_waku extends CI_Model
                                             if ($i == ($jumlah_perkara - 1))
                                             {
                                                 $perkara_kirim = implode(',', $perk2);
-                                                $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
+                                                // $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
+                                                $pesan = "Perkara " . $row->nomor_perkara . " sudah materai belum diputus%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                                 if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                                 {
                                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
@@ -1391,7 +1538,7 @@ class M_waku extends CI_Model
                         $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='materai' and user_sipp=1000 and datediff(curdate(),dikirim)=0")->row();
                         if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                         {
-                            $pesan = "SIPP: Perkara " . $putus->nomor_perkara . " sudah putus (" . $putus->tgl_putus . ") belum diinput materainya, dikirim otomatis oleh $this->nama_pa";
+                            $pesan = "SIPP: Perkara " . $putus->nomor_perkara . " sudah putus (" . $putus->tgl_putus . ") belum diinput materainya%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                             $kasir = $this->db->query("select nomorhp from $this->dbwa.daftar_kontak where jabatan='kasir'");
                             if ($kasir->num_rows() > 0)
                             {
@@ -1458,7 +1605,8 @@ class M_waku extends CI_Model
                                 if ($jumlah_perkara <= 11)
                                 {
                                     $perkara_kirim = implode(',', $perk);
-                                    $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                                    // $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                                    $pesan = "Perkara " . $row->nomor_perkara . " belum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                     if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
@@ -1480,7 +1628,7 @@ class M_waku extends CI_Model
                                         if ($j == 11)
                                         {
                                             $perkara_kirim = implode(',', $perk2);
-                                            $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                                            $pesan = "Perkara " . $row->nomor_perkara . " belum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                             if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
@@ -1498,7 +1646,8 @@ class M_waku extends CI_Model
                                             if ($i == ($jumlah_perkara - 1))
                                             {
                                                 $perkara_kirim = implode(',', $perk2);
-                                                $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                                                // $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
+                                                $pesan = "Perkara " . $row->nomor_perkara . " belum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                                 if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                                 {
                                                     $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
