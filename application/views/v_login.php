@@ -15,13 +15,22 @@
 	<link rel="stylesheet" href="<?php echo base_url('asset/plugin/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css'); ?>">
 	<!-- Theme style -->
 	<link rel="stylesheet" href="<?php echo base_url('asset/dist/css/adminlte.min.css') ?>">
+	<style>
+		.logo {
+			
+			width: 1em;
+		}
+		a.h1:hover .logo {
+			content: url("<?php echo base_url('asset/img/snow1.png'); ?>");
+		}
+	</style>
 </head>
 <body class="hold-transition login-page">
 	<div class="login-box">
 		<!-- /.login-logo -->
 		<div class="card card-outline card-primary">
 			<div class="card-header text-center">
-				<a href="<?php echo base_url(); ?>" class="h1"><b>SNOW</b></a>
+				<a href="<?php echo base_url(); ?>" class="h1"><b>SN<span><img class="logo" src="<?php echo base_url('asset/img/snow.png'); ?>" alt="O"></span>W</b></a>
 			</div>
 			<div class="card-body">
 				<p class="login-box-msg"><b>S</b>istem <b>No</b>tifikasi <b>W</b>hatsapp</p>
