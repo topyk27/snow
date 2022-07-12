@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+## [1.0.4] - 2022-07-12
+### Changed
+- Escaping nama yang akan dikirim pesan
+- Penyesuaian index dan pk pada tabel
+
 ## [1.0.3] - 2022-07-06
 ### Added
 - Notifikasi jadwal sidang ke pihak T
@@ -10,11 +15,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Template notifikasi
 
-### Removed
-
 ## [1.0.2] - 2022-06-15
-### Added
-
 ### Changed
 - Template notifikasi akta cerai terbit
 
@@ -30,8 +31,6 @@ All notable changes to this project will be documented in this file.
 - informasi dihapus karena belum ada persetujuan dari pimpinan
 
 ## [1.0.1] - 2022-06-15
-### Added
-
 ### Changed
 - Template pesan kirim pesan ke jurusita dan kasir diubah
 - Waktu pengiriman pesan ditambah
@@ -43,7 +42,3 @@ All notable changes to this project will be documented in this file.
 ## [1.0.0] - 2022-06-13
 ### Added
 - Fitur kirim pesan whatsapp ke pegawai dan pihak
-
-### Changed
-
-### Removed
