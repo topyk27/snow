@@ -2,7 +2,7 @@ $(document).ready(function(){
     $("#sidebar_cek_notif").addClass("active");
     var no = 0;
     // get_pesan("sidang");
-    get_pesan("sidang");			
+    get_pesan("daftar");			
 
     function get_pesan(jenis)
     {
@@ -70,31 +70,11 @@ $(document).ready(function(){
                 {
                     switch(jenis)
                     {
-                        case "sidang" :
-                        $(document).Toasts('create', {
-                          class: 'bg-success',
-                          title: 'Berhasil ambil data',
-                          subtitle: "sidang",
-                          body: 'Selanjutnya ambil data notifikasi SIPP'
-                        });
-                        get_pesan("notifikasisipp");
-                        break;
-
-                        case "notifikasisipp" :
-                        $(document).Toasts('create', {
-                          class: 'bg-success',
-                          title: 'Berhasil ambil data',
-                          subtitle: 'notifikasi SIPP',
-                          body: 'Selanjutnya ambil data notifikasi pendaftaran'
-                        });
-                        get_pesan("daftar");
-                        break;
-
                         case "daftar" :
                         $(document).Toasts('create', {
                           class: 'bg-success',
                           title: 'Berhasil ambil data',
-                          subtitle: 'pendaftaran',
+                          subtitle: 'Pendaftaran',
                           body: 'Selanjutnya ambil data notifikasi pendaftaran E-Court'
                         });
                         get_pesan("daftar_ecourt");
@@ -104,7 +84,47 @@ $(document).ready(function(){
                         $(document).Toasts('create', {
                           class: 'bg-success',
                           title: 'Berhasil ambil data',
-                          subtitle: 'pendaftaran E-Court',
+                          subtitle: 'Pendaftaran E-Court',
+                          body: 'Selanjutnya ambil data notifikasi jadwal sidang'
+                        });
+                        get_pesan("sidang");
+                        break;
+                        
+                        case "sidang" :
+                        $(document).Toasts('create', {
+                          class: 'bg-success',
+                          title: 'Berhasil ambil data',
+                          subtitle: "Sidang",
+                          body: 'Selanjutnya ambil data notifikasi tundaan sidang'
+                        });
+                        get_pesan("tunda_sidang");
+                        break;
+
+                        case "tunda_sidang" :
+                        $(document).Toasts('create', {
+                            class: 'bg-success',
+                            title: 'Berhasil ambil data',
+                            subtitle: "Tundaan Sidang",
+                            body: 'Selanjutnya ambil data notifikasi perkara putus'
+                        });
+                        get_pesan("putus");
+                        break;
+
+                        case "putus" :
+                        $(document).Toasts('create', {
+                            class: 'bg-success',
+                            title: 'Berhasil ambil data',
+                            subtitle: "Perkara Putus",
+                            body: 'Selanjutnya ambil data notifikasi PSP'
+                        });
+                        get_pesan("psp");
+                        break;
+
+                        case "psp" :
+                        $(document).Toasts('create', {
+                          class: 'bg-success',
+                          title: 'Berhasil ambil data',
+                          subtitle: "PSP",
                           body: 'Selanjutnya ambil data notifikasi akta cerai'
                         });
                         get_pesan("akta");
@@ -114,7 +134,7 @@ $(document).ready(function(){
                         $(document).Toasts('create', {
                           class: 'bg-success',
                           title: 'Berhasil ambil data',
-                          subtitle: 'akta cerai',
+                          subtitle: 'Akta Cerai',
                           body: 'Selanjutnya ambil data notifikasi akta cerai pengacara'
                         });
                         get_pesan("akta_pengacara");
@@ -124,36 +144,18 @@ $(document).ready(function(){
                         $(document).Toasts('create', {
                           class: 'bg-success',
                           title: 'Berhasil ambil data',
-                          subtitle: 'akta cerai pengacara',
-                          body: 'Selanjutnya ambil data notifikasi PSP'
+                          subtitle: 'Akta Cerai Pengacara',
+                          body: 'Selanjutnya ambil data notifikasi SIPP'
                         });
-                        get_pesan("psp");
+                        get_pesan("notifikasisipp");
                         break;
 
-                        case "psp" :
+                        case "notifikasisipp" :
                         $(document).Toasts('create', {
                           class: 'bg-success',
-                          title: 'Berhasil ambil',
-                          subtitle: "PSP",
-                          body: 'Selanjutnya ambil data perkara putus'
-                        });
-                        get_pesan("putus");
-                        break;
-
-                        case "putus" :
-                        $(document).Toasts('create', {
-                            class: 'bg-success',
-                            title: 'Berhasil ambil',
-                            subtitle: "Perkara Putus",
-                            body: 'Selanjutnya ambil data tunda sidang'
-                        });
-                        get_pesan("tunda_sidang");
-                        case "tunda_sidang" :
-                        $(document).Toasts('create', {
-                            class: 'bg-success',
-                            title: 'Berhasil ambil',
-                            subtitle: "Tunda Sidang",
-                            body: 'Selanjutnya beralih ke halaman kirim'
+                          title: 'Berhasil ambil data',
+                          subtitle: 'Notifikasi SIPP',
+                          body: 'Selanjutnya beralih ke halaman kirim'
                         });
                         setTimeout(function(){
                             // window.location.replace("<?php echo base_url('waku/kirim'); ?>");
