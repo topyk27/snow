@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Klasifikasi PIP : putus hadir, luar hadir, kontra
+- Notifikasi BAS belum terinput
+- Monitoring apakah notif ke pegawai sudah ditindak lanjuti
+- Notifikasi ditambahkan peringatan ke 1, 2 dst.
+- Notifikasi ke Ketua Majelis untuk putusan atau tundaan sidang juga
+
+## [1.0.5] - 2022-07-25
+### Changed
+- Fix bug kirim pesan pendaftaran
+- Urutan pengiriman notifikasi
+- Template pesan putusan
+
 ## [1.0.4] - 2022-07-12
 ### Changed
 - Escaping nama yang akan dikirim pesan

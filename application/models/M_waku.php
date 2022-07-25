@@ -141,7 +141,7 @@ class M_waku extends CI_Model
     function _daftar($template)
     {
         $pesan_daftar=[];
-        return $pesan_daftar;
+        // return $pesan_daftar;
         $tgldaftar=$this->config->item('mulai_tgl_daftar','wa_config');
         try
         {
@@ -166,11 +166,11 @@ class M_waku extends CI_Model
             {
                 foreach ($kweri_daftar->result() as $row)
                 {
-                    if($row->telp1!="-" || !empty($row->telp1))
+                    if($row->telp1!="-" && !empty($row->telp1) && is_null($row->telp1))
                     {
                         $cari = array("#jenis_perkara#", "#namap#", "#tgl_daftar#", "#noperk#", "#nama_pa#");
                         $ganti = array($row->jenis_perkara_nama, str_replace("'","''",$row->namap), $row->tgl_daftar, $row->nomor_perkara,$this->nama_pa);
-                        $pesan = str_replace($cari, $ganti, $template[7]);
+                        $pesan = str_replace($cari, $ganti, $template[7]);                        
                         $telp1 = $this->_nomor_hp_indo($row->telp1);
                         $tanggals = date("Y-m-d H:i:s");
                         $this->db->query("insert into $this->dbwa.perkara_daftar(perkara_id,nomor_perkara,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_daftar'," . $this->db->escape($row->namap) . ",'$row->telp1','$pesan','$tanggals')");
@@ -178,11 +178,11 @@ class M_waku extends CI_Model
                         $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp1','$pesan','wa','perkara_daftar','$id_pesan')");
                         $pesan_daftar[] = $pesan;                        
                     }
-                    if($row->telp2!="-" || !empty($row->telp2))
+                    if($row->telp2!="-" && !empty($row->telp2) && !is_null($row->telp2))
                     {
                         $cari = array("#jenis_perkara#", "#namap#", "#tgl_daftar#", "#noperk#", "#nama_pa#");
                         $ganti = array($row->jenis_perkara_nama, str_replace("'","''",$row->namat), $row->tgl_daftar, $row->nomor_perkara,$this->nama_pa);
-                        $pesan = str_replace($cari, $ganti, $template[7]);
+                        $pesan = str_replace($cari, $ganti, $template[7]);                        
                         $telp2 = $this->_nomor_hp_indo($row->telp2);
                         $tanggals = date("Y-m-d H:i:s");
                         $this->db->query("insert into $this->dbwa.perkara_daftar(perkara_id,nomor_perkara,tanggal_daftar,nama_pihak,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_daftar'," . $this->db->escape($row->namat) . ",'$row->telp2','$pesan','$tanggals')");
@@ -202,7 +202,7 @@ class M_waku extends CI_Model
     function _daftar_ecourt($template)
     {
         $pesan_daftar=[];
-        return $pesan_daftar;
+        // return $pesan_daftar;
         $tgldaftar=$this->config->item('mulai_tgl_daftar','wa_config');
 
         try {
@@ -388,8 +388,7 @@ class M_waku extends CI_Model
     {
 
         $pesan_psp=[];
-        return $pesan_psp; //sementara disable dulu, belum ada persetujuan dari boss
-        $tahunpsp=$this->config->item('mulai_tahun_psp','wa_config');
+        // return $pesan_psp; //sementara disable dulu, belum ada persetujuan dari boss        
         //perkara CT
         try {
             $kweri_psp = $this->db->query("
@@ -785,7 +784,7 @@ class M_waku extends CI_Model
     function _sidang($template)
     {
         $pesan_sidang=[];
-        return $pesan_sidang;
+        // return $pesan_sidang;
         // pihak p
         try {
             $kweri_sidang = $this->db->query("
@@ -1011,7 +1010,7 @@ class M_waku extends CI_Model
     function _tunda_sidang($template)
     {
         $pesan_tunda_sidang = [];
-        return $pesan_tunda_sidang;
+        // return $pesan_tunda_sidang;
         try {
             $tunda_sidang = $this->db->query("SELECT a.tanggal_sidang, a.urutan as sidangke,a.perkara_id,a.agenda,b.nomor_perkara,b.jenis_perkara_nama, c.perkara_id AS perkara_id_sidang, d.efiling_id, d.nomor_register as nomor_ecourt, j.jurusita_id, j.jurusita_nama FROM $this->database.perkara_jurusita j,$this->database.perkara_jadwal_sidang a LEFT JOIN $this->database.perkara b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.sidang_jurusita c ON a.perkara_id=c.perkara_id AND a.tanggal_sidang=c.tanggal_sidang LEFT JOIN $this->database.perkara_efiling d ON b.nomor_perkara=d.nomor_perkara WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null AND j.perkara_id=b.perkara_id ");
             // return $this->db->last_query();
@@ -1074,7 +1073,7 @@ class M_waku extends CI_Model
     function _putus($template)
     {
         $pesan_putus=[];
-        return $pesan_putus;
+        // return $pesan_putus;
         $mulaiputusan = $this->config->item('mulai_putusan', 'wa_config');
         try {
             $putus = $this->db->query("SELECT a.perkara_id, a.nomor_perkara, b.tanggal_putusan AS tgl_putus, j.jurusita_id, j.jurusita_nama, p.perkara_id AS pts_perkara_id, sp.nama as putusan_akhir FROM $this->database.perkara_jurusita j, $this->database.status_putusan sp, $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id=b.perkara_id LEFT JOIN $this->dbwa.putus p ON a.perkara_id=p.perkara_id AND b.tanggal_putusan=p.tgl_putus WHERE j.perkara_id=a.perkara_id AND (b.tanggal_putusan IS NOT NULL) AND tanggal_putusan >= '$mulaiputusan' AND DATEDIFF(CURDATE(), b.tanggal_putusan) >= 0 AND p.perkara_id IS NULL AND b.status_putusan_id = sp.id ORDER BY b.tanggal_putusan ASC ");
@@ -1139,7 +1138,7 @@ class M_waku extends CI_Model
     function _notifikasisipp()
     {
         $pesan_notif=[];
-        return $pesan_notif;
+        // return $pesan_notif;
         $tahunnotif=$this->config->item('mulai_tahun_notifsipp','wa_config');
         $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='pmh' and datediff(curdate(),dikirim)=0")->row();
         if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))

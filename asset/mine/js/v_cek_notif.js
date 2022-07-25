@@ -2,7 +2,7 @@ $(document).ready(function(){
     $("#sidebar_cek_notif").addClass("active");
     var no = 0;
     // get_pesan("sidang");
-    get_pesan("daftar");			
+    get_pesan("notifikasisipp");			
 
     function get_pesan(jenis)
     {
@@ -70,11 +70,21 @@ $(document).ready(function(){
                 {
                     switch(jenis)
                     {
+                        case "notifikasisipp" :
+                        $(document).Toasts('create', {
+                          class: 'bg-success',
+                          title: 'Berhasil ambil data',
+                          subtitle: 'notifikasi SIPP',
+                          body: 'Selanjutnya ambil data notifikasi pendaftaran'
+                        });
+                        get_pesan("daftar");
+                        break;
+                        
                         case "daftar" :
                         $(document).Toasts('create', {
                           class: 'bg-success',
                           title: 'Berhasil ambil data',
-                          subtitle: 'Pendaftaran',
+                          subtitle: 'pendaftaran',
                           body: 'Selanjutnya ambil data notifikasi pendaftaran E-Court'
                         });
                         get_pesan("daftar_ecourt");
@@ -84,38 +94,28 @@ $(document).ready(function(){
                         $(document).Toasts('create', {
                           class: 'bg-success',
                           title: 'Berhasil ambil data',
-                          subtitle: 'Pendaftaran E-Court',
-                          body: 'Selanjutnya ambil data notifikasi jadwal sidang'
+                          subtitle: 'pendaftaran E-Court',
+                          body: 'Selanjutnya ambil data jadwal sidang'
                         });
                         get_pesan("sidang");
                         break;
-                        
+
                         case "sidang" :
                         $(document).Toasts('create', {
                           class: 'bg-success',
                           title: 'Berhasil ambil data',
-                          subtitle: "Sidang",
-                          body: 'Selanjutnya ambil data notifikasi tundaan sidang'
+                          subtitle: "sidang",
+                          body: 'Selanjutnya ambil data tundaan sidang'
                         });
                         get_pesan("tunda_sidang");
                         break;
-
+                        
                         case "tunda_sidang" :
                         $(document).Toasts('create', {
                             class: 'bg-success',
-                            title: 'Berhasil ambil data',
-                            subtitle: "Tundaan Sidang",
-                            body: 'Selanjutnya ambil data notifikasi perkara putus'
-                        });
-                        get_pesan("putus");
-                        break;
-
-                        case "putus" :
-                        $(document).Toasts('create', {
-                            class: 'bg-success',
-                            title: 'Berhasil ambil data',
-                            subtitle: "Perkara Putus",
-                            body: 'Selanjutnya ambil data notifikasi PSP'
+                            title: 'Berhasil ambil',
+                            subtitle: "Tunda Sidang",
+                            body: 'Selanjutnya ambil data psp'
                         });
                         get_pesan("psp");
                         break;
@@ -123,9 +123,19 @@ $(document).ready(function(){
                         case "psp" :
                         $(document).Toasts('create', {
                           class: 'bg-success',
-                          title: 'Berhasil ambil data',
+                          title: 'Berhasil ambil',
                           subtitle: "PSP",
-                          body: 'Selanjutnya ambil data notifikasi akta cerai'
+                          body: 'Selanjutnya ambil data perkara putus'
+                        });
+                        get_pesan("putus");
+                        break;
+                        
+                        case "putus" :
+                        $(document).Toasts('create', {
+                            class: 'bg-success',
+                            title: 'Berhasil ambil',
+                            subtitle: "Perkara Putus",
+                            body: 'Selanjutnya ambil data akta cerai'
                         });
                         get_pesan("akta");
                         break;
@@ -134,7 +144,7 @@ $(document).ready(function(){
                         $(document).Toasts('create', {
                           class: 'bg-success',
                           title: 'Berhasil ambil data',
-                          subtitle: 'Akta Cerai',
+                          subtitle: 'akta cerai',
                           body: 'Selanjutnya ambil data notifikasi akta cerai pengacara'
                         });
                         get_pesan("akta_pengacara");
@@ -144,24 +154,16 @@ $(document).ready(function(){
                         $(document).Toasts('create', {
                           class: 'bg-success',
                           title: 'Berhasil ambil data',
-                          subtitle: 'Akta Cerai Pengacara',
-                          body: 'Selanjutnya ambil data notifikasi SIPP'
-                        });
-                        get_pesan("notifikasisipp");
-                        break;
-
-                        case "notifikasisipp" :
-                        $(document).Toasts('create', {
-                          class: 'bg-success',
-                          title: 'Berhasil ambil data',
-                          subtitle: 'Notifikasi SIPP',
+                          subtitle: 'akta cerai pengacara',
                           body: 'Selanjutnya beralih ke halaman kirim'
                         });
                         setTimeout(function(){
-                            // window.location.replace("<?php echo base_url('waku/kirim'); ?>");
+                        // window.location.replace("<?php echo base_url('waku/kirim'); ?>");
                             window.location.replace(base_url+'waku/kirim');
-                        },5000);
+                        },5000);                        
                         break;
+
+
                     }
                 }
             }
