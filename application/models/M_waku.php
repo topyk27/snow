@@ -1256,7 +1256,7 @@ class M_waku extends CI_Model
             // phs
             $row = $this->db->query("select a.hakim_id from $this->database.perkara_hakim_pn a 
                                         left join $this->database.perkara_penetapan_hari_sidang b on a.perkara_id=b.perkara_id 
-                                        where year(a.tanggal_penetapan)>=2018 and a.jabatan_hakim_id=1 and a.aktif='Y'      
+                                        where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1 and a.aktif='Y'      
                                         and datediff(curdate(),a.tanggal_penetapan)>3  
                                         and b.perkara_id is null and a.perkara_id not in (select z.perkara_id
                                         from $this->database.perkara_putusan z 
@@ -1272,7 +1272,7 @@ class M_waku extends CI_Model
                         $kweri = $this->db->query("select a.hakim_id, y.nomor_perkara from $this->database.perkara_hakim_pn a 
                                                                 left join $this->database.perkara_penetapan_hari_sidang b on a.perkara_id=b.perkara_id 
                                                                 left join $this->database.perkara y on a.perkara_id=y.perkara_id
-                                                                where year(a.tanggal_penetapan)>=2019 and a.jabatan_hakim_id=1 and a.aktif='Y'      
+                                                                where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1 and a.aktif='Y'      
                                                                 and datediff(curdate(),a.tanggal_penetapan)>3  
                                                                 and b.perkara_id is null and a.perkara_id not in (select z.perkara_id
                                                                 from $this->database.perkara_putusan z 
@@ -1526,7 +1526,7 @@ class M_waku extends CI_Model
                                    SELECT a.nomor_perkara,z.tanggal_transaksi,date_format(b.tanggal_putusan,'%d/%m/%Y') as tgl_putus
                                                    FROM $this->database.perkara a 
                                                    LEFT JOIN $this->database.perkara_putusan b ON a.`perkara_id`=b.perkara_id       
-                                                   LEFT JOIN (select perkara_id,tanggal_transaksi from $this->database.perkara_biaya where jenis_biaya_id=152 and year(tanggal_transaksi)>=2017 and tahapan_id=10) z ON b.perkara_id=z.`perkara_id` 
+                                                   LEFT JOIN (select perkara_id,tanggal_transaksi from $this->database.perkara_biaya where jenis_biaya_id=152 and year(tanggal_transaksi)>=$tahunnotif and tahapan_id=10) z ON b.perkara_id=z.`perkara_id` 
                                                    WHERE (b.tanggal_putusan IS not NULL) and year(tanggal_putusan)>=$tahunnotif and z.tanggal_transaksi is null and DATEDIFF(curdate(),b.tanggal_putusan) > 1 order by b.tanggal_putusan
                                              
                                   ");
