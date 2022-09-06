@@ -8,6 +8,13 @@ All notable changes to this project will be documented in this file.
 - Notifikasi ditambahkan peringatan ke 1, 2 dst.
 - Notifikasi ke Ketua Majelis untuk putusan atau tundaan sidang juga
 
+## [1.0.6] - 2022-09-06
+### Added
+- Notifikasi ke n untuk jadwal sidang belum ditunda
+
+### Changed
+- Perubahan tabel reminder_sipp : tambahan kolom no_perkara varchar(128) dan peringatan_ke int(11)
+
 ## [1.0.5] - 2022-07-25
 ### Changed
 - Fix bug kirim pesan pendaftaran

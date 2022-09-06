@@ -1140,12 +1140,11 @@ class M_waku extends CI_Model
         $pesan_notif=[];
         // return $pesan_notif;
         $tahunnotif=$this->config->item('mulai_tahun_notifsipp','wa_config');
-        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='pmh' and datediff(curdate(),dikirim)=0")->row();
+        // pmh        
+        $reminder = $this->db->query("SELECT user_sipp, validasi, MAX(dikirim) as tgl FROM $this->dbwa.reminder_sipp WHERE validasi='pmh' and datediff(curdate(),dikirim)=0")->row();
         if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
         {
-            $pmh = $this->db->query("select a.perkara_id, a.nomor_perkara, date_format(tanggal_pendaftaran,'%d-%m-%Y') as tgl_daftar from $this->database.perkara a
-                                    left join $this->database.perkara_penetapan b on a.perkara_id=b.perkara_id
-                                    where DATEDIFF(curdate(),a.tanggal_pendaftaran) > 1 and b.perkara_id is null and year(a.tanggal_pendaftaran)>=$tahunnotif order by a.perkara_id");
+            $pmh = $this->db->query("select a.perkara_id, a.nomor_perkara, date_format(tanggal_pendaftaran,'%d-%m-%Y') as tgl_daftar from $this->database.perkara a left join $this->database.perkara_penetapan b on a.perkara_id=b.perkara_id where DATEDIFF(curdate(),a.tanggal_pendaftaran) > 1 and b.perkara_id is null and year(a.tanggal_pendaftaran)>=$tahunnotif order by a.perkara_id");
             if ($pmh->num_rows() > 0)
             {
                 $perk = [];
@@ -1169,12 +1168,13 @@ class M_waku extends CI_Model
                     $perk[] = $perkara;
                 }
                 $perkara_panjang=implode(',', $perk);
+                $perkara_baris_baru = str_replace(",","%0a",$perkara_panjang);
                 $jumlah_perkara = sizeof($perk);
                 if ($jumlah_perkara <= 11)
                 {
-                    $perkara_kirim = implode(',', $perk);
-                    // $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                    $pesan = "Perkara " . $row->nomor_perkara . " belum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis $this->nama_pa";
+                    $perkara_kirim = $perkara_baris_baru;
+                    $pesan = "Perkara%0a" . $perkara_kirim . "%0abelum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                    // $pesan = "Perkara " . $row->nomor_perkara . " belum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis $this->nama_pa";
                     if (!empty($hpketua->nomorhp) and $hpketua->nomorhp != "-")
                     {
                         $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
@@ -1194,9 +1194,11 @@ class M_waku extends CI_Model
                             $perk2[] = $perk[$i];
                             if ($j == 11)
                             {
-                                $perkara_kirim = implode(',', $perk2);
-                                // $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                                $pesan = "Perkara " . $row->nomor_perkara . " belum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis $this->nama_pa";
+                                $perkara_panjang2 = implode(',', $perk2);
+                                $perkara_baris_baru2 = str_replace(",","%0a",$perkara_panjang2);
+                                $perkara_kirim2 = $perkara_baris_baru2;
+                                $pesan = "Perkara%0a" . $perkara_kirim2 . "%0abelum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                // $pesan = "Perkara " . $row->nomor_perkara . " belum PMH lebih dari 2 hari%0aNotifikasi ke 1%0aPesan ini dikirim otomatis $this->nama_pa";
                                 if (!empty($hpketua->nomorhp) and $hpketua->nomorhp != "-")
                                 {
                                     $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
@@ -1213,9 +1215,12 @@ class M_waku extends CI_Model
                             {
                                 if ($i == ($jumlah_perkara - 1))
                                 {
-                                    $perkara_kirim = implode(',', $perk2);
-                                    // $pesan = "Perkara " . $perkara_kirim . " belum PMH lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                                    $pesan = "Perkara " . $row->nomor_perkara . " belum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis $this->nama_pa";
+                                    $perkara_panjang3 = implode(',', $perk2);
+                                    $perkara_baris_baru3 = str_replace(",","%0a",$perkara_panjang3);
+                                    $perkara_kirim3 = $perkara_baris_baru3;
+                                    // $perkara_kirim = implode(',', $perk2);
+                                    $pesan = "Perkara%0a" . $perkara_kirim3 . " belum PMH lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                    // $pesan = "Perkara " . $row->nomor_perkara . " belum PMH lebih dari 2 hari%0aNotifikasi ke 1%0aPesan ini dikirim otomatis $this->nama_pa";
                                     if (!empty($hpketua->nomorhp) and $hpketua->nomorhp != "-")
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpketua->nomorhp);
@@ -1231,104 +1236,111 @@ class M_waku extends CI_Model
                     }
                 }
             }
-            // pp
-            $pp = $this->db->query("select count(*) as jumlah from $this->database.perkara a
-                                left join $this->database.perkara_panitera_pn b on a.perkara_id=b.perkara_id
-                                where DATEDIFF(curdate(),a.tanggal_pendaftaran) > 4 and year(a.tanggal_pendaftaran)>=$tahunnotif and b.perkara_id is null")->row();
-            if ($pp->jumlah > 0)
+        }
+
+        // pp
+        $pp = $this->db->query("select count(*) as jumlah from $this->database.perkara a left join $this->database.perkara_panitera_pn b on a.perkara_id=b.perkara_id where DATEDIFF(curdate(),a.tanggal_pendaftaran) > 4 and year(a.tanggal_pendaftaran)>=$tahunnotif and b.perkara_id is null")->row();
+        if ($pp->jumlah > 0)
+        {
+            $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='pp' and datediff(curdate(),dikirim)=0")->row();
+            if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
             {
-                $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='pp' and datediff(curdate(),dikirim)=0")->row();
+                $pesan = "SIPP: Ada sebanyak " . $pp->jumlah . " perkara yang belum ada penetapan PP dan jurusita lebih dari 4 hari setelah pendaftaran.%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                $hppanitera = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where jabatan='panitera'")->row();
+                if (!empty($hppanitera->nomorhp) and $hppanitera->nomorhp != "-")
+                {
+                    $nomorhp = $this->_nomor_hp_indo($hppanitera->nomorhp);
+                    $tanggals = date("Y-m-d H:i:s");
+                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values('$hppanitera->id','$hppanitera->nomorhp','pp','$pesan','$tanggals')");
+                    $id_pesan = $this->db->insert_id();
+                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                }
+                $pesan_notif[]=$pesan;
+            }
+        }
+        // phs
+        $row = $this->db->query("select a.hakim_id from $this->database.perkara_hakim_pn a left join $this->database.perkara_penetapan_hari_sidang b on a.perkara_id=b.perkara_id where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1 and a.aktif='Y' and datediff(curdate(),a.tanggal_penetapan)>3 and b.perkara_id is null and a.perkara_id not in (select z.perkara_id from $this->database.perkara_putusan z left join $this->database.perkara_jadwal_sidang x on z.perkara_id=x.perkara_id where z.tanggal_putusan is not null and year(z.tanggal_putusan) >=$tahunnotif and x.perkara_id is null) group by a.hakim_id");
+        if ($row->num_rows() > 0)
+        {
+            foreach ($row->result() as $phs)
+            {
+                $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='phs' and user_sipp=$phs->hakim_id and datediff(curdate(),dikirim)=0")->row();
                 if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                 {
-                    $pesan = "SIPP: Ada sebanyak " . $pp->jumlah . " perkara yang belum ada penetapan PP dan jurusita lebih dari 4 hari setelah pendaftaran.%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                    $hppanitera = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where jabatan='panitera'")->row();
-                    if (!empty($hppanitera->nomorhp) and $hppanitera->nomorhp != "-")
+                    $kweri = $this->db->query("select a.hakim_id, y.nomor_perkara from sipp.perkara_hakim_pn a left join sipp.perkara_penetapan_hari_sidang b on a.perkara_id=b.perkara_id left join sipp.perkara y on a.perkara_id=y.perkara_id where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1 and a.aktif='Y' and datediff(curdate(),a.tanggal_penetapan)>3 and b.perkara_id is null and a.perkara_id not in (select z.perkara_id from sipp.perkara_putusan z left join sipp.perkara_jadwal_sidang x on z.perkara_id=x.perkara_id where z.tanggal_putusan is not null and year(z.tanggal_putusan) >= $tahunnotif and x.perkara_id is null) and a.hakim_id=$phs->hakim_id");
+                    if($kweri->num_rows() > 0)
                     {
-                        $nomorhp = $this->_nomor_hp_indo($hppanitera->nomorhp);
-                        $tanggals = date("Y-m-d H:i:s");
-                        $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values('$hppanitera->id','$hppanitera->nomorhp','pp','$pesan','$tanggals')");
-                        $id_pesan = $this->db->insert_id();
-                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
-                    }
-                    $pesan_notif[]=$pesan;
-                }
-            }
-            // phs
-            $row = $this->db->query("select a.hakim_id from $this->database.perkara_hakim_pn a 
-                                        left join $this->database.perkara_penetapan_hari_sidang b on a.perkara_id=b.perkara_id 
-                                        where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1 and a.aktif='Y'      
-                                        and datediff(curdate(),a.tanggal_penetapan)>3  
-                                        and b.perkara_id is null and a.perkara_id not in (select z.perkara_id
-                                        from $this->database.perkara_putusan z 
-                                        left join $this->database.perkara_jadwal_sidang x on z.perkara_id=x.perkara_id
-                                        where z.tanggal_putusan is not null and year(z.tanggal_putusan) >=$tahunnotif and x.perkara_id is null) group by a.hakim_id");
-            if ($row->num_rows() > 0)
-            {
-                foreach ($row->result() as $phs)
-                {
-                    $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='phs' and user_sipp=$phs->hakim_id and datediff(curdate(),dikirim)=0")->row();
-                    if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
-                    {
-                        $kweri = $this->db->query("select a.hakim_id, y.nomor_perkara from $this->database.perkara_hakim_pn a 
-                                                                left join $this->database.perkara_penetapan_hari_sidang b on a.perkara_id=b.perkara_id 
-                                                                left join $this->database.perkara y on a.perkara_id=y.perkara_id
-                                                                where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1 and a.aktif='Y'      
-                                                                and datediff(curdate(),a.tanggal_penetapan)>3  
-                                                                and b.perkara_id is null and a.perkara_id not in (select z.perkara_id
-                                                                from $this->database.perkara_putusan z 
-                                                                left join $this->database.perkara_jadwal_sidang x on z.perkara_id=x.perkara_id
-                                                                where z.tanggal_putusan is not null and year(z.tanggal_putusan) >= $tahunnotif and x.perkara_id is null) and a.hakim_id=$phs->hakim_id");
-                        if($kweri->num_rows() > 0)
+                        $perk=[];
+                        $hpkm = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$phs->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
+                        foreach ($kweri->result() as $row)
                         {
-                            $perk=[];
-                            $hpkm = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$phs->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
-                            foreach ($kweri->result() as $row)
+                            $noperk=explode("/",$row->nomor_perkara);
+                            if ($noperk[1]=='Pdt.G')
                             {
-                                $noperk=explode("/",$row->nomor_perkara);
-                                if ($noperk[1]=='Pdt.G')
-                                {
-                                    $jenis='G';
-                                }
-                                else if ($noperk[1]=='Pdt.P')
-                                {
-                                    $jenis='P';
-                                }
-                                else
-                                {
-                                    $jenis='?';
-                                }
-                                $perkara=$noperk[0].$jenis.$noperk[2];
-                                $perk[]=$perkara;
+                                $jenis='G';
                             }
-                            $perkara_panjang=implode(',', $perk);
-                            $jumlah_perkara = sizeof($perk);
-                            if ($jumlah_perkara <= 11)
+                            else if ($noperk[1]=='Pdt.P')
                             {
-                                $perkara_kirim = implode(',', $perk);
-                                // $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
-                                $pesan = "Perkara " . $row->nomor_perkara . " belum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis $this->nama_pa";
-                                if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
+                                $jenis='P';
+                            }
+                            else
+                            {
+                                $jenis='?';
+                            }
+                            $perkara=$noperk[0].$jenis.$noperk[2];
+                            $perk[]=$perkara;
+                        }
+                        $perkara_panjang=implode(',', $perk);
+                        $jumlah_perkara = sizeof($perk);
+                        if ($jumlah_perkara <= 11)
+                        {
+                            $perkara_panjang = implode(',',$perk);
+                            $perkara_kirim = str_replace(",","%0a",$perkara_panjang);
+                            $pesan = "Perkara%0a" . $perkara_kirim . "%0abelum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                            // $pesan = "Perkara " . $row->nomor_perkara . " belum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis $this->nama_pa";
+                            if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
+                            {
+                                $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
+                                $tanggals = date("Y-m-d H:i:s");
+                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                                $pesan_notif[]=$pesan;
+                            }
+                            else
+                            {
+                                $j = 0;
+                                $perk2 = [];
+                                for ($i = 0; $i < $jumlah_perkara; $i++)
                                 {
-                                    $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                    $tanggals = date("Y-m-d H:i:s");
-                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
-                                    $id_pesan = $this->db->insert_id();
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
-                                    $pesan_notif[]=$pesan;
-                                }
-                                else
-                                {
-                                    $j = 0;
-                                    $perk2 = [];
-                                    for ($i = 0; $i < $jumlah_perkara; $i++)
+                                    $j++;
+                                    $perk2[] = $perk[$i];
+                                    if ($j == 11)
                                     {
-                                        $j++;
-                                        $perk2[] = $perk[$i];
-                                        if ($j == 11)
+                                        $perkara_panjang2 = implode(',',$perk2);
+                                        $perkara_kirim2 = str_replace(",","%0a",$perkara_panjang2);
+                                        $pesan = "Perkara%0a" . $perkara_kirim2 . "%0abelum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                        // $pesan = "Perkara " . $row->nomor_perkara . " belum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                        if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                         {
-                                            $perkara_kirim = implode(',', $perk2);
-                                            // $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
-                                            $pesan = "Perkara " . $row->nomor_perkara . " belum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                            $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
+                                            $tanggals = date("Y-m-d H:i:s");
+                                            $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
+                                            $id_pesan = $this->db->insert_id();
+                                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                                            $pesan_notif[]=$pesan;
+                                        }
+                                        $perk2 = [];
+                                        $j = 0;
+                                    }
+                                    else
+                                    {
+                                        if ($i == ($jumlah_perkara - 1))
+                                        {
+                                            $perkara_panjang3 = implode(',',$perk2);
+                                            $perkara_kirim3 = str_replace(",","%0a",$perkara_panjang3);
+                                            $pesan = "Perkara%0a" . $perkara_kirim3 . "%0abelum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                            // $pesan = "Perkara " . $row->nomor_perkara . " belum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
                                             if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
                                             {
                                                 $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
@@ -1338,26 +1350,6 @@ class M_waku extends CI_Model
                                                 $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                                 $pesan_notif[]=$pesan;
                                             }
-                                            $perk2 = [];
-                                            $j = 0;
-                                        }
-                                        else
-                                        {
-                                            if ($i == ($jumlah_perkara - 1))
-                                            {
-                                                $perkara_kirim = implode(',', $perk2);
-                                                // $pesan = "Perkara " . $perkara_kirim . " belum PHS lebih dari 3 hari dikirim otomatis $this->nama_pa";
-                                                $pesan = "Perkara " . $row->nomor_perkara . " belum PHS lebih dari 3 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                                                if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
-                                                {
-                                                    $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                    $tanggals = date("Y-m-d H:i:s");
-                                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','phs','$pesan','$tanggals')");
-                                                    $id_pesan = $this->db->insert_id();
-                                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
-                                                    $pesan_notif[]=$pesan;
-                                                }
-                                            }
                                         }
                                     }
                                 }
@@ -1365,188 +1357,56 @@ class M_waku extends CI_Model
                         }
                     }
                 }
-                // jadwal sidang
-                $kweri = $this->db->query("select a.perkara_id,a.nomor_perkara,b.panitera_id,b.panitera_nama
-                                        from $this->database.perkara a
-                                        left join $this->database.perkara_panitera_pn b
-                                        on a.perkara_id=b.perkara_id
-                                        where b.aktif='Y' and a.proses_terakhir_id=200");
-                if ($kweri->num_rows() > 0)
-                {
-                    foreach ($kweri->result() as $row)
-                    {
-                        $sidang = $this->db->query("select max(tanggal_sidang) as tgl from $this->database.perkara_jadwal_sidang where perkara_id=$row->perkara_id")->row();
-                        $tgl_sekarang = date_create(date('Y-m-d'));
-                        $tgl_sidang = date_create($sidang->tgl);
-                        $diff = date_diff($tgl_sekarang, $tgl_sidang);
-                        $tanggal_sidang = date_format($tgl_sidang, 'd-m-Y');
-                        $beda = $diff->format('%R%a');
-                        if ($beda < -2)
-                        {
-                            $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='sidang' and user_sipp=$row->panitera_id and datediff(curdate(),dikirim)=0")->row();
-                            if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
-                            {
-                                $pesan = " SIPP: Nomor perkara " . $row->nomor_perkara . " PP " . str_replace("'","''",$row->panitera_nama) . " belum diisi tundaan sidangnya, sidang terakhir " . $tanggal_sidang . "%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                                $pp = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$row->panitera_id and jabatan in ('panitera','pp')")->row();
-                                if (!empty($pp->nomorhp) and $pp->nomorhp != "-")
-                                {
-                                    $nomorhp = $this->_nomor_hp_indo($pp->nomorhp);
-                                    $tanggals = date("Y-m-d H:i:s");
-                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values('$pp->id','$pp->nomorhp','sidang','$pesan','$tanggals')");
-                                    $id_pesan = $this->db->insert_id();
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
-                                    $pesan_notif[]=$pesan;
-                                }
-                            }
-                        }
-                    }
-                }
-                //sudah materai belum diinput putusannya
-                $row = $this->db->query("
-                                    SELECT d.hakim_id
-                                                   FROM $this->database.perkara a 
-                                                   LEFT JOIN $this->database.perkara_putusan b ON a.`perkara_id`=b.perkara_id       
-                                                   LEFT JOIN $this->database.perkara_hakim_pn d ON a.perkara_id=d.perkara_id AND d.jabatan_hakim_id=1 AND d.aktif='Y'
-                                                   LEFT JOIN $this->database.perkara_biaya z ON a.perkara_id=z.`perkara_id` 
-                                                   WHERE (b.tanggal_putusan IS NULL OR b.tanggal_putusan ='' OR b.tanggal_putusan ='0000-00-00') 
-                                                   AND z.jenis_biaya_id=152 
-                                                   group by d.hakim_id
-                                  ");
-                if ($row->num_rows() > 0)
-                {
-                    foreach ($row->result() as $putus)
-                    {
-                        if(is_null($putus->hakim_id))
-                        {
-                            continue;
-                        }
-                        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='putus' and user_sipp=$putus->hakim_id and datediff(curdate(),dikirim)=0")->row();
-                        if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
-                        {
-                            $kweri= $this->db->query("
-                                    SELECT d.hakim_id,a.nomor_perkara
-                                                   FROM $this->database.perkara a 
-                                                   LEFT JOIN $this->database.perkara_putusan b ON a.`perkara_id`=b.perkara_id       
-                                                   LEFT JOIN $this->database.perkara_hakim_pn d ON a.perkara_id=d.perkara_id AND d.jabatan_hakim_id=1 AND d.aktif='Y'
-                                                   LEFT JOIN $this->database.perkara_biaya z ON a.perkara_id=z.`perkara_id` 
-                                                   WHERE (b.tanggal_putusan IS NULL OR b.tanggal_putusan ='' OR b.tanggal_putusan ='0000-00-00') 
-                                                   AND z.jenis_biaya_id=152 and d.hakim_id=$putus->hakim_id
-                                  ");
-                            if ($kweri->num_rows() > 0)
-                            {
-                                $perk=[];
-                                $hpkm = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$putus->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
-                                foreach ($kweri->result() as $row)
-                                {
-                                    $noperk=explode("/",$row->nomor_perkara);
-                                    if ($noperk[1]=='Pdt.G')
-                                    {
-                                        $jenis='G';
-                                    }
-                                    else if ($noperk[1]=='Pdt.P')
-                                    {
-                                        $jenis='P';
-                                    }
-                                    else
-                                    {
-                                        $jenis='?';
-                                    }
-                                    $perkara=$noperk[0].$jenis.$noperk[2];
-                                    $perk[]=$perkara;
-                                }
-                                $perkara_panjang=implode(',', $perk);
-                                $jumlah_perkara = sizeof($perk);
-                                if ($jumlah_perkara <= 11)
-                                {
-                                    $perkara_kirim = implode(',', $perk);
-                                    // $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
-                                    $pesan = "Perkara " . $row->nomor_perkara . " sudah materai belum diputus%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                                    if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
-                                    {
-                                        $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                        $tanggals = date("Y-m-d H:i:s");
-                                        $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
-                                        $id_pesan = $this->db->insert_id();
-                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
-                                        $pesan_notif[]=$pesan;
-                                    }
-                                }
-                                else
-                                {
-                                    $j = 0;
-                                    $perk2 = [];
-                                    for ($i = 0; $i < $jumlah_perkara; $i++)
-                                    {
-                                        $j++;
-                                        $perk2[] = $perk[$i];
-                                        if ($j == 11)
-                                        {
-                                            $perkara_kirim = implode(',', $perk2);
-                                            // $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
-                                            $pesan = "Perkara " . $row->nomor_perkara . " sudah materai belum diputus%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                                            if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
-                                            {
-                                                $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                $tanggals = date("Y-m-d H:i:s");
-                                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
-                                                $id_pesan = $this->db->insert_id();
-                                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
-                                                $pesan_notif[]=$pesan;
-                                            }
-                                            $perk2 = [];
-                                            $j = 0;
+            }        
+        }
 
-                                        }
-                                        else
-                                        {
-                                            if ($i == ($jumlah_perkara - 1))
-                                            {
-                                                $perkara_kirim = implode(',', $perk2);
-                                                // $pesan = "Perkara " . $perkara_kirim . " sudah materai belum diputus dikirim otomatis $this->nama_pa";
-                                                $pesan = "Perkara " . $row->nomor_perkara . " sudah materai belum diputus%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                                                if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
-                                                {
-                                                    $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                    $tanggals = date("Y-m-d H:i:s");
-                                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
-                                                    $id_pesan = $this->db->insert_id();
-                                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
-                                                    $pesan_notif[]=$pesan;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+        //jadwal_sidang #yang ini
+        $kweri = $this->db->query("select a.perkara_id,a.nomor_perkara,b.panitera_id,b.panitera_nama from $this->database.perkara a left join $this->database.perkara_panitera_pn b on a.perkara_id=b.perkara_id where b.aktif='Y' and (a.proses_terakhir_id=200 OR a.proses_terakhir_id=81)");
+        if ($kweri->num_rows() > 0)
+        {
+            foreach ($kweri->result() as $row)
+            {
+                $sidang = $this->db->query("select max(tanggal_sidang) as tgl from $this->database.perkara_jadwal_sidang where perkara_id=$row->perkara_id")->row();
+                $tgl_sekarang = date_create(date('Y-m-d'));
+                $tgl_sidang = date_create($sidang->tgl);
+                $diff = date_diff($tgl_sekarang, $tgl_sidang);
+                $tanggal_sidang = date_format($tgl_sidang, 'd-m-Y');
+                $beda = $diff->format('%R%a');
+                // $nomor_perkara = $row->nomor_perkara;
+                if ($beda < -2)
+                {
+                    // $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='sidang' and user_sipp=$row->panitera_id and datediff(curdate(),dikirim)=0 and no_perkara='$row->nomor_perkara'")->row();
+                    $reminder = $this->db->query("SELECT user_sipp,validasi,MAX(dikirim) AS tgl, MAX(peringatan_ke) AS peringatan_ke FROM $this->dbwa.reminder_sipp WHERE validasi='sidang' AND user_sipp=$row->panitera_id AND no_perkara='$row->nomor_perkara'")->row();                    
+                    if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
+                    {
+                        $pesan = " SIPP: Nomor perkara " . $row->nomor_perkara . " PP " . str_replace("'","''",$row->panitera_nama) . " belum diisi tundaan sidangnya, sidang terakhir " . $tanggal_sidang . "%0aNotifikasi ke 1%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                        $pp = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$row->panitera_id and jabatan in ('panitera','pp')")->row();
+                        if (!empty($pp->nomorhp) and $pp->nomorhp != "-")
+                        {
+                            $nomorhp = $this->_nomor_hp_indo($pp->nomorhp);
+                            $tanggals = date("Y-m-d H:i:s");
+                            $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim,no_perkara,peringatan_ke)values('$pp->id','$pp->nomorhp','sidang','$pesan','$tanggals','$row->nomor_perkara',1)");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                            $pesan_notif[]=$pesan;
                         }
                     }
-                }
-                //sudah putus belum materai
-                $row = $this->db->query("
-                                   SELECT a.nomor_perkara,z.tanggal_transaksi,date_format(b.tanggal_putusan,'%d/%m/%Y') as tgl_putus
-                                                   FROM $this->database.perkara a 
-                                                   LEFT JOIN $this->database.perkara_putusan b ON a.`perkara_id`=b.perkara_id       
-                                                   LEFT JOIN (select perkara_id,tanggal_transaksi from $this->database.perkara_biaya where jenis_biaya_id=152 and year(tanggal_transaksi)>=$tahunnotif and tahapan_id=10) z ON b.perkara_id=z.`perkara_id` 
-                                                   WHERE (b.tanggal_putusan IS not NULL) and year(tanggal_putusan)>=$tahunnotif and z.tanggal_transaksi is null and DATEDIFF(curdate(),b.tanggal_putusan) > 1 order by b.tanggal_putusan
-                                             
-                                  ");
-                if ($row->num_rows() > 0)
-                {
-                    foreach ($row->result() as $putus)
+                    else
                     {
-                        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='materai' and user_sipp=1000 and datediff(curdate(),dikirim)=0")->row();
-                        if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
+                        
+                        $dif = date_diff($tgl_sekarang,date_create($reminder->tgl));
+                        $beda_hari = $dif->format('%R%a');
+                        if(($beda_hari <= -1))
                         {
-                            $pesan = "SIPP: Perkara " . $putus->nomor_perkara . " sudah putus (" . $putus->tgl_putus . ") belum diinput materainya%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                            $kasir = $this->db->query("select nomorhp from $this->dbwa.daftar_kontak where jabatan='kasir'");
-                            if ($kasir->num_rows() > 0)
+                            $ke = (int)$reminder->peringatan_ke + 1;
+                            
+                            $pesan = " SIPP: Nomor perkara " . $row->nomor_perkara . " PP " . str_replace("'","''",$row->panitera_nama) . " belum diisi tundaan sidangnya, sidang terakhir " . $tanggal_sidang . "%0aNotifikasi ke ".$ke."%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                            $pp = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$row->panitera_id and jabatan in ('panitera','pp')")->row();
+                            if (!empty($pp->nomorhp) and $pp->nomorhp != "-")
                             {
-                                foreach ($kasir->result() as $hpkasir)
-                                {
-                                    $nomorhp = $this->_nomor_hp_indo($hpkasir->nomorhp);
-                                }
+                                $nomorhp = $this->_nomor_hp_indo($pp->nomorhp);
                                 $tanggals = date("Y-m-d H:i:s");
-                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values(1000,'$hpkasir->nomorhp','materai','$pesan','$tanggals')");
+                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim,no_perkara,peringatan_ke)values('$pp->id','$pp->nomorhp','sidang','$pesan','$tanggals','$row->nomor_perkara',$ke)");
                                 $id_pesan = $this->db->insert_id();
                                 $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
                                 $pesan_notif[]=$pesan;
@@ -1554,109 +1414,98 @@ class M_waku extends CI_Model
                         }
                     }
                 }
-                // minutasi
-                $row = $this->db->query("select a.hakim_id from $this->database.perkara_hakim_pn a
-                                left join $this->database.perkara_putusan b on a.perkara_id=b.perkara_id
-                                where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1 
-                                and a.aktif='Y' and b.tanggal_putusan is not null 
-                                and datediff(curdate(),b.tanggal_putusan) > 1 
-                                and b.tanggal_minutasi is null group by a.hakim_id
-                                ");
-                if ($row->num_rows() > 0)
-                {
-                    foreach ($row->result() as $minutasi)
-                    {
-                        $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='minutasi' and user_sipp=$minutasi->hakim_id and datediff(curdate(),dikirim)=0")->row();
-                        if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
-                        {
-                            $kweri = $this->db->query("select a.hakim_id,y.nomor_perkara from $this->database.perkara_hakim_pn a
-                                                   left join $this->database.perkara_putusan b on a.perkara_id=b.perkara_id
-                                                   left join $this->database.perkara y on a.perkara_id=y.perkara_id
-                                                   where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1
-                                                   and a.aktif='Y' and b.tanggal_putusan is not null
-                                                   and datediff(curdate(),b.tanggal_putusan) > 1
-                                                   and b.tanggal_minutasi is null and a.hakim_id=$minutasi->hakim_id
-                                                ");
-                            if ($kweri->num_rows() > 0)
-                            {
-                                $perk=[];
-                                $hpkm = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$minutasi->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
-                                foreach ($kweri->result() as $row)
-                                {
-                                    $noperk=explode("/",$row->nomor_perkara);
-                                    if ($noperk[1]=='Pdt.G')
-                                    {
-                                        $jenis='G';
-                                    }
-                                    else if ($noperk[1]=='Pdt.P')
-                                    {
-                                        $jenis='P';
-                                    }
-                                    else
-                                    {
-                                        $jenis='?';
-                                    }
-                                    $perkara=$noperk[0].$jenis.$noperk[2];
-                                    $perk[]=$perkara;
+            }
+        }
 
-                                }
-                                $jumlah_perkara = sizeof($perk);
-                                if ($jumlah_perkara <= 11)
+        //sudah materai belum diinput putusannya
+        $row = $this->db->query("SELECT d.hakim_id FROM $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id=b.perkara_id LEFT JOIN $this->database.perkara_hakim_pn d ON a.perkara_id=d.perkara_id AND d.jabatan_hakim_id=1 AND d.aktif='Y' LEFT JOIN $this->database.perkara_biaya z ON a.perkara_id=z.perkara_id WHERE (b.tanggal_putusan IS NULL OR b.tanggal_putusan ='' OR b.tanggal_putusan ='0000-00-00') AND z.jenis_biaya_id=152 group by d.hakim_id");
+        if ($row->num_rows() > 0)
+        {
+            foreach ($row->result() as $putus)
+            {
+                $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='putus' and user_sipp=$putus->hakim_id and datediff(curdate(),dikirim)=0")->row();
+                if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
+                {
+                    $kweri= $this->db->query("SELECT d.hakim_id,a.nomor_perkara FROM $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id=b.perkara_id LEFT JOIN $this->database.perkara_hakim_pn d ON a.perkara_id=d.perkara_id AND d.jabatan_hakim_id=1 AND d.aktif='Y' LEFT JOIN $this->database.perkara_biaya z ON a.perkara_id=z.perkara_id WHERE (b.tanggal_putusan IS NULL OR b.tanggal_putusan ='' OR b.tanggal_putusan ='0000-00-00') AND z.jenis_biaya_id=152 and d.hakim_id=$putus->hakim_id");
+                    if ($kweri->num_rows() > 0)
+                    {
+                        $perk=[];
+                        $hpkm = $this->db->query("select id,nomorhp from daftar_kontak where id=$putus->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
+                        foreach ($kweri->result() as $row)
+                        {
+                            $noperk=explode("/",$row->nomor_perkara);
+                            if ($noperk[1]=='Pdt.G')
+                            {
+                                $jenis='G';
+                            }
+                            else if ($noperk[1]=='Pdt.P')
+                            {
+                                $jenis='P';
+                            }
+                            else
+                            {
+                                $jenis='?';
+                            }
+                            $perkara=$noperk[0].$jenis.$noperk[2];
+                            $perk[]=$row->nomor_perkara;
+                        }
+                        $perkara_panjang=implode(',', $perk);
+                        $perkara_baris_baru = str_replace(",","%0a",$perkara_panjang);
+                        $jumlah_perkara = sizeof($perk);
+                        if ($jumlah_perkara <= 11)
+                        {
+                            
+                            $perkara_kirim = $perkara_baris_baru;
+                            $pesan = "Perkara%0a" . $perkara_kirim . "%0asudah materai belum diputus%0aPesan ini dikirim otomatis oleh ".$this->nama_pa;
+                            if (!empty($hpkm->nomorhp))
+                            {
+                                $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
+                                $tanggals = date("Y-m-d H:i:s");
+                                $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                                $pesan_notif[]=$pesan;
+                            }
+                        }
+                        else
+                        {
+                            $j = 0;
+                            $perk2 = [];
+                            for ($i = 0; $i < $jumlah_perkara; $i++)
+                            {
+                                $j++;
+                                $perk2[] = $perk[$i];
+                                if ($j == 11)
                                 {
-                                    $perkara_kirim = implode(',', $perk);
-                                    // $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                                    $pesan = "Perkara " . $row->nomor_perkara . " belum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                                    if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
+                                    $perkara_panjang2=implode(',', $perk2);
+                                    $perkara_kirim2 = str_replace(",","%0a",$perkara_panjang2);
+                                    $pesan = "Perkara%0a" . $perkara_kirim2 . "%0asudah materai belum diputus%0aPesan ini dikirim otomatis oleh ".$this->nama_pa;
+                                    if (!empty($hpkm->nomorhp))
                                     {
                                         $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
                                         $tanggals = date("Y-m-d H:i:s");
-                                        $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                        $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
                                         $id_pesan = $this->db->insert_id();
-                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp,'$id_pesan')");
                                         $pesan_notif[]=$pesan;
                                     }
-                                }
-                                else
-                                {
-                                    $j = 0;
                                     $perk2 = [];
-                                    for ($i = 0; $i < $jumlah_perkara; $i++)
+                                    $j = 0;
+                                }
+                                else {
+                                    if ($i == ($jumlah_perkara - 1))
                                     {
-                                        $j++;
-                                        $perk2[] = $perk[$i];
-                                        if ($j == 11)
+                                        $perkara_panjang3=implode(',', $perk2);
+                                        $perkara_kirim3 = str_replace(",","%0a",$perkara_panjang3);
+                                        $pesan = "Perkara%0a" . $perkara_kirim3 . "%0asudah materai belum diputus%0aPesan ini dikirim otomatis oleh ".$this->nama_pa;
+                                        if (!empty($hpkm->nomorhp))
                                         {
-                                            $perkara_kirim = implode(',', $perk2);
-                                            $pesan = "Perkara " . $row->nomor_perkara . " belum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                                            if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
-                                            {
-                                                $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                $tanggals = date("Y-m-d H:i:s");
-                                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
-                                                $id_pesan = $this->db->insert_id();
-                                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
-                                                $pesan_notif[]=$pesan;
-                                            }
-                                            $perk2 = [];
-                                            $j = 0;
-                                        }
-                                        else
-                                        {
-                                            if ($i == ($jumlah_perkara - 1))
-                                            {
-                                                $perkara_kirim = implode(',', $perk2);
-                                                // $pesan = "Perkara " . $perkara_kirim . " belum diminut lebih dari 2 hari dikirim otomatis $this->nama_pa";
-                                                $pesan = "Perkara " . $row->nomor_perkara . " belum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
-                                                if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
-                                                {
-                                                    $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
-                                                    $tanggals = date("Y-m-d H:i:s");
-                                                    $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
-                                                    $id_pesan = $this->db->insert_id();
-                                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
-                                                    $pesan_notif[]=$pesan;
-                                                }
-                                            }
+                                            $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
+                                            $tanggals = date("Y-m-d H:i:s");
+                                            $this->db->query("insert into reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','putus','$pesan','$tanggals')");
+                                            $id_pesan = $this->db->insert_id();
+                                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp,'$id_pesan')");
+                                            $pesan_notif[]=$pesan;
                                         }
                                     }
                                 }
@@ -1666,8 +1515,137 @@ class M_waku extends CI_Model
                 }
             }
         }
-    }
 
+        //sudah putus belum materai
+        $row = $this->db->query("SELECT a.nomor_perkara,z.tanggal_transaksi,date_format(b.tanggal_putusan,'%d/%m/%Y') as tgl_putus FROM $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.`perkara_id`=b.perkara_id LEFT JOIN (select perkara_id,tanggal_transaksi from $this->database.perkara_biaya where jenis_biaya_id=152 and year(tanggal_transaksi)>=$tahunnotif and tahapan_id=10) z ON b.perkara_id=z.`perkara_id` WHERE (b.tanggal_putusan IS not NULL) and year(tanggal_putusan)>=$tahunnotif and z.tanggal_transaksi is null and DATEDIFF(curdate(),b.tanggal_putusan) > 1 order by b.tanggal_putusan");
+        if ($row->num_rows() > 0)
+        {
+            foreach ($row->result() as $putus)
+            {
+                $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='materai' and user_sipp=1000 and datediff(curdate(),dikirim)=0")->row();
+                if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
+                {
+                    $pesan = "SIPP: Perkara " . $putus->nomor_perkara . " sudah putus (" . $putus->tgl_putus . ") belum diinput materainya%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                    $kasir = $this->db->query("select nomorhp from $this->dbwa.daftar_kontak where jabatan='kasir'");
+                    if ($kasir->num_rows() > 0)
+                    {
+                        $tanggals = date("Y-m-d H:i:s");
+                        foreach ($kasir->result() as $hpkasir)
+                        {
+                            $nomorhp = $this->_nomor_hp_indo($hpkasir->nomorhp);
+                            $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values(1000,'$hpkasir->nomorhp','materai','$pesan','$tanggals')");
+                            $id_pesan = $this->db->insert_id();
+                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                        }
+                        $pesan_notif[]=$pesan;
+                    }
+                }
+            }
+        }
+
+        // minutasi
+        $row = $this->db->query("select a.hakim_id from $this->database.perkara_hakim_pn a left join $this->database.perkara_putusan b on a.perkara_id=b.perkara_id where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1 and a.aktif='Y' and b.tanggal_putusan is not null and datediff(curdate(),b.tanggal_putusan) > 1 and b.tanggal_minutasi is null group by a.hakim_id");
+        if ($row->num_rows() > 0)
+        {
+            foreach ($row->result() as $minutasi)
+            {
+                $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from $this->dbwa.reminder_sipp where validasi='minutasi' and user_sipp=$minutasi->hakim_id and datediff(curdate(),dikirim)=0")->row();
+                if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
+                {
+                    $kweri = $this->db->query("select a.hakim_id,y.nomor_perkara from $this->database.perkara_hakim_pn a left join $this->database.perkara_putusan b on a.perkara_id=b.perkara_id left join $this->database.perkara y on a.perkara_id=y.perkara_id where year(a.tanggal_penetapan)>=$tahunnotif and a.jabatan_hakim_id=1 and a.aktif='Y' and b.tanggal_putusan is not null and datediff(curdate(),b.tanggal_putusan) > 1 and b.tanggal_minutasi is null and a.hakim_id=$minutasi->hakim_id");
+                    if ($kweri->num_rows() > 0)
+                    {
+                        $perk=[];
+                        $hpkm = $this->db->query("select id,nomorhp from $this->dbwa.daftar_kontak where id=$minutasi->hakim_id and jabatan in ('hakim','ketua','wakil')")->row();
+                        foreach ($kweri->result() as $row)
+                        {
+                            $noperk=explode("/",$row->nomor_perkara);
+                            if ($noperk[1]=='Pdt.G')
+                            {
+                                $jenis='G';
+                            }
+                            else if ($noperk[1]=='Pdt.P')
+                            {
+                                $jenis='P';
+                            }
+                            else
+                            {
+                                $jenis='?';
+                            }
+                            $perkara=$noperk[0].$jenis.$noperk[2];
+                            $perk[]=$perkara;                            
+                        }
+                        $perkara_panjang=implode(',', $perk);
+                        $perkara_baris_baru = str_replace(",","%0a",$perkara_panjang);
+                        $jumlah_perkara = sizeof($perk);
+                        if ($jumlah_perkara <= 11)
+                        {
+                            $perkara_kirim = $perkara_baris_baru;
+                            $pesan = "Perkara%0a" . $perkara_kirim . "%0abelum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                            // $pesan = "Perkara " . $row->nomor_perkara . " belum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                            if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
+                            {
+                                $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
+                                $tanggals = date("Y-m-d H:i:s");
+                                $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                                $pesan_notif[]=$pesan;
+                            }
+                        }
+                        else
+                        {
+                            $j = 0;
+                            $perk2 = [];
+                            for ($i = 0; $i < $jumlah_perkara; $i++)
+                            {
+                                $j++;
+                                $perk2[] = $perk[$i];
+                                if ($j == 11)
+                                {
+                                    $perkara_panjang2=implode(',', $perk2);
+                                    $perkara_kirim2 = str_replace(",","%0a",$perkara_panjang2);
+                                    $pesan = "Perkara%0a" . $perkara_kirim2 . "%0abelum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                    // $pesan = "Perkara " . $row->nomor_perkara . " belum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                    if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
+                                    {
+                                        $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
+                                        $tanggals = date("Y-m-d H:i:s");
+                                        $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                        $id_pesan = $this->db->insert_id();
+                                        $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                                        $pesan_notif[]=$pesan;
+                                    }
+                                    $perk2 = [];
+                                    $j = 0;
+                                }
+                                else
+                                {
+                                    if ($i == ($jumlah_perkara - 1))
+                                    {
+                                        $perkara_panjang3=implode(',', $perk2);
+                                        $perkara_kirim3 = str_replace(",","%0a",$perkara_panjang3);
+                                        $pesan = "Perkara%0a" . $perkara_kirim3 . "%0abelum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                        // $pesan = "Perkara " . $row->nomor_perkara . " belum diminut lebih dari 2 hari%0aPesan ini dikirim otomatis oleh $this->nama_pa";
+                                        if (!empty($hpkm->nomorhp) and $hpkm->nomorhp != "-")
+                                        {
+                                            $nomorhp = $this->_nomor_hp_indo($hpkm->nomorhp);
+                                            $tanggals = date("Y-m-d H:i:s");
+                                            $this->db->query("insert into $this->dbwa.reminder_sipp(user_sipp,nohp,validasi,sms,dikirim)values($hpkm->id,'$hpkm->nomorhp','minutasi','$pesan','$tanggals')");
+                                            $id_pesan = $this->db->insert_id();
+                                            $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$nomorhp',  '$pesan','wa','reminder_sipp','$id_pesan')");
+                                            $pesan_notif[]=$pesan;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $pesan_notif;
+    }
 }
 
  ?>
