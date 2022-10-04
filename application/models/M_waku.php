@@ -1423,6 +1423,10 @@ class M_waku extends CI_Model
         {
             foreach ($row->result() as $putus)
             {
+                if($putus->hakim_id == null)
+                {
+                    continue;
+                }
                 $reminder = $this->db->query("select user_sipp,validasi,max(dikirim) as tgl from reminder_sipp where validasi='putus' and user_sipp=$putus->hakim_id and datediff(curdate(),dikirim)=0")->row();
                 if ((is_null($reminder->validasi)) or (empty($reminder->validasi)))
                 {
