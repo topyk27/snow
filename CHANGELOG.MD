@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 - Notifikasi ditambahkan peringatan ke 1, 2 dst.
 - Notifikasi ke Ketua Majelis untuk putusan atau tundaan sidang juga
 
+## [1.0.8] - 2022-10-25
+### Changed
+- Bug notifikasi jadwal sidang ke pihak T dan Kuasa T tidak terkirim karena id tabel sidang sudah terisi oleh pihak P
+
 ## [1.0.7] - 2022-10-04
 ### Changed
 - Jika hakim id null, entah kenapa bisa null aku pun tak tahu

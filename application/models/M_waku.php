@@ -893,11 +893,17 @@ class M_waku extends CI_Model
                                                 left join $this->database.pihak f on e.pengacara_id = f.id
                                                 left join $this->database.perkara_pihak2 g on a.perkara_id=g.perkara_id
                                                 left join $this->database.pihak h on g.pihak_id=h.id
-                                                WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>'')) AND e.pihak_ke = 2
+                                                WHERE a.tanggal_sidang > CURDATE() and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>''))
                                                 ");
 
             if ($kweri_sidang->num_rows() > 0) {
                 foreach ($kweri_sidang->result() as $row) {
+                    $nama_pengacara = addslashes($row->pengacara);
+                    $kweri_sidang1 = $this->db->query("SELECT id FROM $this->dbwa.sidang WHERE perkara_id=$row->perkara_id AND pihak='$nama_pengacara' AND tanggal_sidang='$row->tanggal_sidang' ");
+                    if($kweri_sidang1->num_rows() > 0)
+                    {
+                        continue;
+                    }
 
                     if (isset($row->efiling_id)) {
 
@@ -957,11 +963,16 @@ class M_waku extends CI_Model
                                                 left join $this->database.pihak f on e.pengacara_id = f.id
                                                 left join $this->database.perkara_pihak2 g on a.perkara_id=g.perkara_id
                                                 left join $this->database.pihak h on g.pihak_id=h.id
-                                                WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>''))
+                                                WHERE a.tanggal_sidang > CURDATE() and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>''))
                                                 ");
 
             if ($kweri_sidang->num_rows() > 0) {
                 foreach ($kweri_sidang->result() as $row) {
+                    $kweri_sidang1 = $this->db->query("SELECT id FROM $this->dbwa.sidang WHERE perkara_id=$row->perkara_id AND pihak='$row->pihak2' AND tanggal_sidang='$row->tanggal_sidang' ");
+                    if($kweri_sidang1->num_rows() > 0)
+                    {
+                        continue;
+                    }
 
                     if (isset($row->efiling_id)) {
 
