@@ -968,7 +968,8 @@ class M_waku extends CI_Model
 
             if ($kweri_sidang->num_rows() > 0) {
                 foreach ($kweri_sidang->result() as $row) {
-                    $kweri_sidang1 = $this->db->query("SELECT id FROM $this->dbwa.sidang WHERE perkara_id=$row->perkara_id AND pihak='$row->pihak2' AND tanggal_sidang='$row->tanggal_sidang' ");
+                    $nama_pihak = addslashes($row->pihak2);
+                    $kweri_sidang1 = $this->db->query("SELECT id FROM $this->dbwa.sidang WHERE perkara_id=$row->perkara_id AND pihak='$nama_pihak' AND tanggal_sidang='$row->tanggal_sidang' ");
                     if($kweri_sidang1->num_rows() > 0)
                     {
                         continue;
