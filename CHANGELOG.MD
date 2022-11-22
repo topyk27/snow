@@ -8,6 +8,16 @@ All notable changes to this project will be documented in this file.
 - Notifikasi ditambahkan peringatan ke 1, 2 dst.
 - Notifikasi ke Ketua Majelis untuk putusan atau tundaan sidang juga
 
+## [2.0.0] - 2022-11-22
+### Added
+- Menu Kontak Pihak, untuk mengunduh nomor kontak para pihak 1, 2 dan kuasa hukum. Setelah kontak diunduh dalam format CSV silahkan unggah ke google contact sesuai akun google pada hp yang digunakan untuk mengirim pesan whatsapp.
+
+### Catatan
+Untuk penggunaan google contact jumlah kontak maksimal yang bisa disimpan adalah 25.000 kontak. Jadi sangat disarankan untuk mengunggah setiap hari dan menghapus kontak yang terlama agar kontak bisa tersimpan dan tidak sampai 25.000 kontak.
+
+### Changed
+- Fix bug pengiriman nomor whatsapp yang tidak disimpan di kontak hp gagal terkirim dengan pesan 'Nomor telepon yang dibagikan via tautan tidak valid.' Memang wa ini bikin ribet aja.
+
 ## [1.0.9] - 2022-11-01
 ### Changed
 - Fix Bug notifikasi jadwal sidang ke pihak T dengan nama menggunakan apostrophe

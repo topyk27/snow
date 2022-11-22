@@ -57,6 +57,11 @@
 					</a>
 				</li>
 				<li>
+					<a href="<?php echo base_url("kontak/pihak"); ?>" class="dropdown-item">
+					Kontak Pihak
+					</a>
+				</li>
+				<li>
 					<a href="<?php echo base_url("setting/sistem"); ?>" class="dropdown-item">
 					Sistem
 					</a>

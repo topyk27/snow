@@ -113,5 +113,42 @@ class Kontak extends CI_Controller
 			redirect(base_url('login'));
 		}
 	}
+
+	public function pihak()
+	{
+		if($this->m_login->isLogin())
+		{
+			$this->load->view("v_kontak_pihak");			
+		}
+		else
+		{
+			redirect(base_url('login'));
+		}
+	}
+
+	public function getAllKontakPihak()
+	{
+		if($this->m_login->isLogin())
+		{
+			$data =  $this->m_kontak->getAllKontakPihak();
+			echo json_encode($data);
+		}
+		else
+		{
+			redirect(base_url('login'));
+		}
+	}
+
+	public function sync_kontak($tgl)
+	{
+		if($this->m_login->isLogin())
+		{
+			$this->m_kontak->sync_kontak($tgl);			
+		}
+		else
+		{
+			redirect(base_url('login'));
+		}
+	}
 }
  ?>

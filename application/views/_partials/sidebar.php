@@ -99,6 +99,12 @@
 						  </a>
 						</li>
 						<li class="nav-item">
+						  <a href="<?php echo base_url('kontak/pihak'); ?>" class="nav-link" id="sidebar_setting_kontak_pihak">
+						    <i class="nav-icon fas fa-address-book"></i>
+						    <p>Kontak Pihak</p>
+						  </a>
+						</li>
+						<li class="nav-item">
 						  <a href="<?php echo base_url('setting/sistem'); ?>" class="nav-link" id="sidebar_setting_sistem">
 						    <i class="nav-icon fas fa-rocket"></i>
 						    <p>Sistem</p>

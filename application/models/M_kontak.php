@@ -100,5 +100,63 @@ class M_kontak extends CI_Model
 		$this->db->order_by("nama","asc");
 		return $this->db->get()->result();
 	}
+
+	public function getAllKontakPihak()
+	{
+		$this->db->from("kontak_pihak");
+		$this->db->order_by("tanggal_pembuatan","desc");
+		return $this->db->get()->result();
+	}
+
+	public function sync_kontak($tgl)
+	{
+		$this->config->load('wa_config',TRUE);
+		$this->database=$this->config->item('database_sipp','wa_config');
+		$this->mulai_kontak=$tgl;		
+		$arr_kontak = [];
+		$arr_header = ['Name','Given Name','Additional Name','Family Name','Yomi Name','Given Name Yomi','Additional Name Yomi','Family Name Yomi','Name Prefix','Name Suffix','Initials','Nickname','Short Name','Maiden Name','Birthday','Gender','Location','Billing Information','Directory Server','Mileage','Occupation','Hobby','Sensitivity','Priority','Subject','Notes','Language','Photo','Group Membership','Phone 1 - Type','Phone 1 - Value','Organization 1 - Type','Organization 1 - Name','Organization 1 - Yomi Name','Organization 1 - Title','Organization 1 - Department','Organization 1 - Symbol','Organization 1 - Location','Organization 1 - Job Description'];
+		array_push($arr_kontak,$arr_header);		
+		$query = $this->db->query("SELECT b.telepon, b.nama, c.nomor_perkara FROM $this->database.perkara_pihak1 a JOIN $this->database.pihak b ON a.pihak_id=b.id JOIN $this->database.perkara c WHERE c.tanggal_pendaftaran >= '$this->mulai_kontak' AND c.perkara_id=a.perkara_id AND (b.telepon IS NOT NULL AND b.telepon <> '' AND b.telepon <> '-')");		
+		if($query->num_rows() > 0)
+		{
+			foreach($query->result() as $row)
+			{				
+				$nama = $row->nama;
+				$telp = $row->telepon;			
+				$arr_kontak[] = array($nama,$nama,'','','','','','','','','','','','','','','','','','','','','','','','','','','','Mobile',$telp,'','','','','','','');
+			}			
+		}		
+		$query1 = $this->db->query("SELECT b.telepon, b.nama, c.nomor_perkara FROM $this->database.perkara_pihak2 a JOIN $this->database.pihak b ON a.pihak_id=b.id JOIN $this->database.perkara c WHERE c.tanggal_pendaftaran >= '$this->mulai_kontak' AND c.perkara_id=a.perkara_id AND (b.telepon IS NOT NULL AND b.telepon <> '' AND b.telepon <> '-')");
+		if($query1->num_rows() > 0)
+		{
+			foreach($query1->result() as $row)
+			{
+				$nama = $row->nama;
+				$telp = $row->telepon;
+				$arr_kontak[] = array($nama,$nama,'','','','','','','','','','','','','','','','','','','','','','','','','','','','Mobile',$telp,'','','','','','','');
+			}
+		}
+		$query2 = $this->db->query("SELECT DISTINCT b.telepon, b.nama, c.nomor_perkara FROM $this->database.perkara_pengacara a JOIN $this->database.pihak b ON a.pengacara_id=b.id JOIN $this->database.perkara c WHERE c.tanggal_pendaftaran >= '$this->mulai_kontak' AND c.perkara_id=a.perkara_id AND (b.telepon IS NOT NULL AND b.telepon <> '' AND b.telepon <> '-')");
+		if($query2->num_rows() > 0)
+		{
+			foreach($query2->result() as $row)
+			{
+				$nama = $row->nama;
+				$telp = $row->telepon;
+				$arr_kontak[] = array($nama,$nama,'','','','','','','','','','','','','','','','','','','','','','','','','','','','Mobile',$telp,'','','','','','','');
+			}
+		}
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="kontak-pihak.csv"');
+		$fp = fopen('php://output','wb');
+		foreach($arr_kontak as $line)
+		{
+			fputcsv($fp,$line,',');
+		}
+		fclose($fp);
+		// date_default_timezone_set("Asia/Makassar");
+		// $date = date("Y-m-d H:i:s");
+		$this->db->query("INSERT INTO kontak_pihak VALUES (NULL,'$tgl') ");		
+	}
 }
  ?>
