@@ -61,7 +61,9 @@
 										<thead>
 											<tr>
 												<th></th>
-												<th>Terakhir diunduh</th>												
+												<th>Tanggal</th>
+												<th>Dibuat</th>
+												<th>Unduh</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -106,7 +108,7 @@
 			window.location.href = '<?php echo base_url('kontak/sync_kontak/'); ?>'+tgl;
 			setTimeout(() => {
 				dt_kontak.ajax.reload();
-			}, 30000);			
+			}, 5000);
 		}
 
 		$(document).ready(function(){
@@ -121,6 +123,10 @@
 				columns : [
 					{data : "id"},
 					{data : "tanggal_pembuatan"},
+					{data : "timestamp"},
+					{data : null, sortable : false, render: function(data,type,row,meta){
+						return "<a href='<?php echo base_url('resources/kontak/')?>"+row['path']+"'><i class='fas fa-download'></i></a>";
+					}},
 				],
 				columnDefs : [
 					{targets: [0], visible: false}

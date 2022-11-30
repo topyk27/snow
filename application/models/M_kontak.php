@@ -105,6 +105,7 @@ class M_kontak extends CI_Model
 	{
 		$this->db->from("kontak_pihak");
 		$this->db->order_by("tanggal_pembuatan","desc");
+		$this->db->order_by("timestamp","desc");
 		return $this->db->get()->result();
 	}
 
@@ -147,16 +148,19 @@ class M_kontak extends CI_Model
 			}
 		}
 		header('Content-Type: text/csv');
-		header('Content-Disposition: attachment; filename="kontak-pihak.csv"');
-		$fp = fopen('php://output','wb');
+		header('Content-Disposition: attachment; filename='.$tgl.'.csv');
+		// $fp = fopen('php://output','wb');
+		$path = 'resources/kontak/'.$tgl.'-'.time().'.csv';
+		$name = $tgl.'-'.time().'.csv';
+		$fp = fopen($path,'w');
 		foreach($arr_kontak as $line)
 		{
 			fputcsv($fp,$line,',');
 		}
 		fclose($fp);
-		// date_default_timezone_set("Asia/Makassar");
-		// $date = date("Y-m-d H:i:s");
-		$this->db->query("INSERT INTO kontak_pihak VALUES (NULL,'$tgl') ");		
+		date_default_timezone_set("Asia/Makassar");
+		$date = date("Y-m-d H:i:s");
+		$this->db->query("INSERT INTO kontak_pihak VALUES (NULL,'$tgl','$name','$date') ");
 	}
 }
  ?>
