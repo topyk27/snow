@@ -563,7 +563,7 @@ class M_waku extends CI_Model
                                     $tanggals = date("Y-m-d H:i:s");
                                     $this->db->query("insert into $this->dbwa.sisa_panjar(perkara_id,nomor_perkara,psp,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->saldo',".$this->db->escape($row->pihak).",'$row->telp_pihak','$pesan','$tanggals')");
                                     $id_pesan = $this->db->insert_id();
-                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$row->telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber, TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$telp_pihak','$pesan','wa','sisa_panjar','$id_pesan')");
 
                                     $pesan_psp[]=$pesan;
                                 }
