@@ -3,7 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 $config['database_sipp']='sipp';
 $config['database_wa']='waku';
-$config['web_drivethru'] = 'https://w-drivethru.pa-tenggarong.go.id/pengambilan/quick/';
+// $config['web_drivethru'] = 'https://w-drivethru.pa-tenggarong.go.id/pengambilan/quick/';
+$config['web_drivethru'] = 'https://w-drivethru.pa-tenggarong.go.id/api/produk/';
 $config['version'] = '2.0.0';
 /*
 konfigurasi dibawah ini setting awal yang akan dimulai dinotifikasi;
