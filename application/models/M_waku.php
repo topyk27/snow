@@ -364,7 +364,7 @@ class M_waku extends CI_Model
                     {
                         continue;
                     }
-                    $cari=array("#noperk#","atas nama #nama#","#tgl_ac#","#nomor_ac","#nama_pa#"); //gak usah pakai nama pihak, ribet cuy
+                    $cari=array("#noperk#","%0aatas nama : #nama# ","#tgl_ac#","#nomor_ac","#nama_pa#"); //gak usah pakai nama pihak, ribet cuy
                     $pihak = $row->pihak_ke==1 ? 'p' : 't';
                     $ganti=array($row->nomor_perkara,"",$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
