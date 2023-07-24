@@ -92,6 +92,12 @@ class M_waku extends CI_Model
         return $this->pesans;
     }
 
+    public function putus_pihak($template)
+    {
+        $this->pesans[]=$this->_putus_pihak($template);
+        return $this->pesans;
+    }
+
     public function tunda_sidang($template)
     {
         $this->pesans[]=$this->_tunda_sidang($template);
@@ -1145,6 +1151,97 @@ class M_waku extends CI_Model
             
         }
         return $pesan_putus;
+    }
+
+    function _putus_pihak($template)
+    {
+        $pesan_putus_pihak = [];
+        $mulaiputusan = $this->config->item('mulai_putusan_pihak', 'wa_config');
+        try
+        {
+            $putus_pihak = $this->db->query("SELECT a.perkara_id, a.nomor_perkara, b.tanggal_putusan AS tgl_putus, p.perkara_id AS pts_perkara_id, sp.nama AS putusan_akhir FROM $this->database.status_putusan sp, $this->database.perkara a LEFT JOIN $this->database.perkara_putusan b ON a.perkara_id = b.perkara_id LEFT JOIN $this->dbwa.putus_pihak p ON a.perkara_id = p.perkara_id AND b.tanggal_putusan = p.tgl_putus WHERE b.tanggal_putusan IS NOT NULL AND tanggal_putusan >= '$mulaiputusan' AND DATEDIFF(CURDATE(), b.tanggal_putusan) >= 0 AND p.perkara_id IS NULL AND b.status_putusan_id = sp.id ORDER BY b.tanggal_putusan ASC");
+            if($putus_pihak->num_rows() > 0)
+            {                
+                foreach($putus_pihak->result() as $row)
+                {
+                    // untuk pihak P
+                    $jumlah_pihak1 = $this->db->query("SELECT pihak_id FROM $this->database.perkara_pihak1 WHERE perkara_id = $row->perkara_id");
+                    foreach($jumlah_pihak1->result() as $row_id_pihak1)
+                    {
+                        $pihak1 = $this->db->query("SELECT nama, telepon FROM $this->database.pihak WHERE id=$row_id_pihak1->pihak_id");
+                        foreach($pihak1->result() as $row_pihak1)
+                        {
+                            if(isset($row_pihak1->telepon) && $row_pihak1->telepon != "-" && !empty($row_pihak1->telepon))
+                            {
+                                $cari = array("#noperk#","#tgl_putus#","#asu#");
+                                $ganti = array($row->nomor_perkara,$this->_tgl_indo($row->tgl_putus),$row->putusan_akhir);
+                                $pesan = str_replace($cari,$ganti,$template[13]);
+                                $hp_pihak1 = $this->_nomor_hp_indo($row_pihak1->telepon);
+                                $pesan .= "pesan ini dikirim otomatis oleh ".$this->nama_pa;
+                                $this->db->query("INSERT INTO $this->dbwa.putus_pihak(perkara_id,nomor_perkara,tgl_putus,nomor_hp,pihak_id,kuasa_id,nama,pesan,dikirim) VALUES ($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_pihak1,$row_id_pihak1->pihak_id,NULL,".$this->db->escape($row_pihak1->nama).",'$pesan',NOW())");
+                                $id_pesan = $this->db->insert_id();
+                                $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_pihak1', '$pesan', 'wa','putus_pihak','$id_pesan')");
+                                $pesan_putus_pihak[] = $pesan;
+                            }
+                        }
+                    }
+                    //untuk pihak T
+                    $jumlah_pihak2 = $this->db->query("SELECT pihak_id FROM $this->database.perkara_pihak2 WHERE perkara_id = $row->perkara_id");
+                    if($jumlah_pihak2->num_rows() > 0)
+                    {
+                        foreach($jumlah_pihak2->result() as $row_id_pihak2)
+                        {
+                            $pihak2 = $this->db->query("SELECT nama, telepon FROM $this->database.pihak WHERE id=$row_id_pihak2->pihak_id");
+                            
+                            foreach($pihak2->result() as $row_pihak2)
+                            {
+                                if(isset($row_pihak2->telepon) && $row_pihak2->telepon != "-" && !empty($row_pihak2->telepon))
+                                {
+                                    $cari = array("#noperk#","#tgl_putus#","#asu#");
+                                    $ganti = array($row->nomor_perkara,$this->_tgl_indo($row->tgl_putus),$row->putusan_akhir);
+                                    $pesan = str_replace($cari,$ganti,$template[13]);
+                                    $hp_pihak2 = $this->_nomor_hp_indo($row_pihak2->telepon);
+                                    $pesan .= "pesan ini dikirim otomatis oleh ".$this->nama_pa;
+                                    $this->db->query("INSERT INTO $this->dbwa.putus_pihak(perkara_id,nomor_perkara,tgl_putus,nomor_hp,pihak_id,kuasa_id,nama,pesan,dikirim) VALUES ($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_pihak2,$row_id_pihak2->pihak_id,NULL,".$this->db->escape($row_pihak2->nama).",'$pesan',NOW())");
+                                    $id_pesan = $this->db->insert_id();
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_pihak2', '$pesan', 'wa','putus_pihak','$id_pesan')");
+                                    $pesan_putus_pihak[] = $pesan;
+                                }
+                            }
+                        }
+                    }
+                    // kuasa P sebetulnya udah termasuk T juga
+                    $jumlah_kuasa_P = $this->db->query("SELECT DISTINCT pengacara_id FROM $this->database.perkara_pengacara WHERE perkara_id = $row->perkara_id");
+                    if($jumlah_kuasa_P->num_rows() > 0)
+                    {
+                        foreach($jumlah_kuasa_P->result() as $row_id_kuasa_p)
+                        {
+                            $kuasaP = $this->db->query("SELECT nama, telepon FROM $this->database.pihak WHERE id = $row_id_kuasa_p->pengacara_id");
+                            foreach($kuasaP->result() as $row_kuasa_p)
+                            {
+                                if(isset($row_kuasa_p->telepon) && $row_kuasa_p->telepon != "-" && !empty($row_kuasa_p->telepon))
+                                {
+                                    $cari = array("#noperk#","#tgl_putus#","#asu#");
+                                    $ganti = array($row->nomor_perkara,$this->_tgl_indo($row->tgl_putus),$row->putusan_akhir);
+                                    $pesan = str_replace($cari,$ganti,$template[13]);
+                                    $hp_kuasa_p = $this->_nomor_hp_indo($row_kuasa_p->telepon);
+                                    $pesan .= "pesan ini dikirim otomatis oleh ".$this->nama_pa;
+                                    $this->db->query("INSERT INTO $this->dbwa.putus_pihak(perkara_id,nomor_perkara,tgl_putus,nomor_hp,pihak_id,kuasa_id,nama,pesan,dikirim) VALUES ($row->perkara_id,'$row->nomor_perkara','$row->tgl_putus',$hp_kuasa_p,NULL,$row_id_kuasa_p->pengacara_id,".$this->db->escape($row_kuasa_p->nama).",'$pesan',NOW())");
+                                    $id_pesan = $this->db->insert_id();
+                                    $this->db->query("INSERT INTO outbox(DestinationNumber,TextDecoded,CreatorID,tabel,id_pesan) VALUES ('$hp_kuasa_p', '$pesan', 'wa','putus_pihak','$id_pesan')");
+                                    $pesan_putus_pihak[] = $pesan;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch(Exception $e)
+        {
+
+        }
+        return $pesan_putus_pihak;
     }
 
     function _notifikasisipp()

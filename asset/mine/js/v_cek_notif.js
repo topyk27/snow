@@ -135,6 +135,16 @@ $(document).ready(function(){
                             class: 'bg-success',
                             title: 'Berhasil ambil',
                             subtitle: "Perkara Putus",
+                            body: 'Selanjutnya ambil data putus pihak'
+                        });
+                        get_pesan("putus_pihak");
+                        break;
+
+                        case "putus_pihak" :
+                        $(document).Toasts('create', {
+                            class: 'bg-success',
+                            title: 'Berhasil ambil',
+                            subtitle: "Perkara Putus Pihak",
                             body: 'Selanjutnya ambil data akta cerai'
                         });
                         get_pesan("akta");

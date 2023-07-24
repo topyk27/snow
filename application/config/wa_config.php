@@ -5,7 +5,7 @@ $config['database_sipp']='sipp';
 $config['database_wa']='waku';
 // $config['web_drivethru'] = 'https://w-drivethru.pa-tenggarong.go.id/pengambilan/quick/';
 $config['web_drivethru'] = 'https://w-drivethru.pa-tenggarong.go.id/api/produk/';
-$config['version'] = '2.0.0';
+$config['version'] = '2.1.0';
 /*
 konfigurasi dibawah ini setting awal yang akan dimulai dinotifikasi;
 */
@@ -25,5 +25,7 @@ $config['mulai_tahun_notifsipp']=2022;
 //mulai data sipp tahun akan dinotifikasi;
 
 $config['mulai_putusan']='2022-07-01';
+
+$config['mulai_putusan_pihak']='2023-05-01';
 
  ?>

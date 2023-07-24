@@ -92,6 +92,6 @@
 	<!-- AdminLTE for demo purposes -->
 	<script src="<?php echo base_url('asset/dist/js/demo.js'); ?>"></script>	
 	<script>const base_url="<?php echo base_url(); ?>";</script>
-	<script src="<?php echo base_url('asset/mine/js/v_cek_notif.min.js?'); ?>"></script>
+	<script src="<?php echo base_url('asset/mine/js/v_cek_notif.min.js?'.time()); ?>"></script>
 </body>
 </html>

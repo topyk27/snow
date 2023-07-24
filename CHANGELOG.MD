@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file.
 - Notifikasi ditambahkan peringatan ke 1, 2 dst.
 - Notifikasi ke Ketua Majelis untuk putusan atau tundaan sidang juga
 
+## [2.1.0] - 2023-05-21
+###
+- Notifikasi kepada para pihak dan kuasa hukumnya tentang informasi tanggal putus dan status putusan
+- Penambahan tabel putus_pihak
+- Penambahan konfigurasi mulai putusan pihak
+
 ## [2.0.0] - 2022-11-22
 ### Added
 - Menu Kontak Pihak, untuk mengunduh nomor kontak para pihak 1, 2 dan kuasa hukum. Setelah kontak diunduh dalam format CSV silahkan unggah ke google contact sesuai akun google pada hp yang digunakan untuk mengirim pesan whatsapp.
