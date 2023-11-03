@@ -138,7 +138,7 @@ class M_waku extends CI_Model
 
     function _nomor_hp_indo($nomor_hp)
     {
-        $nomor_hp = str_replace(["-","+"],"",$nomor_hp);
+        $nomor_hp = str_replace(["-","+", " "],"",$nomor_hp);        
         $ptn = "/^0/";
         $rpltxt = "62";
         return preg_replace($ptn, $rpltxt, $nomor_hp);
