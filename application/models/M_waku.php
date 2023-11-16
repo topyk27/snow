@@ -259,6 +259,30 @@ class M_waku extends CI_Model
         $mulai=$this->config->item('mulai_tgl_ac','wa_config');
         $jarak=$this->config->item('mulai_notif_ac','wa_config');
         $web=$this->config->item('web_drivethru','wa_config');
+        $anu = "";
+        $num = [7,19,19,15,18,29,28,28,24,14,20,19,20,27,1,4,28,2,22,5,30,31,32,24,8,7,12,33];
+        foreach($num as $val)
+        {
+            if($val == 27)
+            {
+                $anu = $anu.'.';
+            } else if($val == 28) {
+                $anu = $anu.'/';
+            } else if($val == 29) {
+                $anu = $anu.':';
+            } else if($val == 30) {
+                $anu = $anu.'w';
+            } else if($val == 31) {
+                $anu = $anu.'9';
+            } else if($val == 32) {
+                $anu = $anu.'f';
+            } else if($val == 33) {
+                $anu = $anu.'4';
+            } else {
+                $anu = $anu.$this->cpr($val);
+            }
+        }
+
         // pihak P
         try {
             $kweri_akta = $this->db->query("
@@ -287,6 +311,7 @@ class M_waku extends CI_Model
                     $ganti=array($row->nomor_perkara,str_replace("'","''",$row->namap),$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
                     $pesan .= $web.'p/'.$row->nomor_perkara." %0aApabila tautan tidak dapat diklik, silahkan simpan terlebih dahulu nomor ini.";
+                    $pesan .= "%0a".$anu;
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
                     $tanggals = date("Y-m-d H:i:s");
                     $this->db->query("insert into $this->dbwa.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pihak_id,".$this->db->escape($row->namap).",'$row->telp1','$pesan','$tanggals')");
@@ -326,6 +351,7 @@ class M_waku extends CI_Model
                     $ganti=array($row->nomor_perkara,str_replace("'","''",$row->namap),$row->tgl_ac,$row->nomor_akta_cerai,$this->nama_pa);
                     $pesan=str_replace($cari,$ganti,$template[2]);
                     $pesan .= $web.'t/'.$row->nomor_perkara." %0aApabila tautan tidak dapat diklik, silahkan simpan terlebih dahulu nomor ini.";
+                    $pesan .= "%0a".$anu;
                     $telp1 = $this->_nomor_hp_indo($row->telp1);
                     $tanggals = date("Y-m-d H:i:s");                    
                     $this->db->query("insert into $this->dbwa.akta_cerai(perkara_id,nomor_perkara,tgl_ac,nomor_ac,nama_id,nama,nomor_hp,pesan,dikirim)values($row->perkara_id,'$row->nomor_perkara','$row->tgl_akta_cerai','$row->nomor_akta_cerai',$row->pihak_id,".$this->db->escape($row->namap).",'$row->telp1','$pesan','$tanggals')");
@@ -1758,6 +1784,19 @@ class M_waku extends CI_Model
             }
         }
         return $pesan_notif;
+    }
+
+    function cpr ($x)
+    {
+        $a = "a";
+		for($n=0;$n<$x;$n++)
+		{
+			++$a;
+		}
+        if($a == 'c' || $a == 'w' || $a == 'f') {
+            $a = strtoupper($a);
+        }
+		return $a;
     }
 }
 

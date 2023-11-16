@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 - Notifikasi ditambahkan peringatan ke 1, 2 dst.
 - Notifikasi ke Ketua Majelis untuk putusan atau tundaan sidang juga
 
+## [2.1.2] - 2023-11-16
+### Changed
+- Tambahan link ke youtube untuk cara penggunaan drivethru
+
 ## [2.1.1] - 2023-11-03
 ### Changed
 - Fix bug gagal mengirimkan pesan ke nomor hp pihak yang menggunakan spasi
