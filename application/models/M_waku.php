@@ -830,7 +830,7 @@ class M_waku extends CI_Model
                                                 left join $this->database.pihak f on e.pengacara_id = f.id
                                                 left join $this->database.perkara_pihak1 g on a.perkara_id=g.perkara_id
                                                 left join $this->database.pihak h on g.pihak_id=h.id
-                                                WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>'')) LIMIT 50
+                                                WHERE a.tanggal_sidang > CURDATE() and c.perkara_id is null and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>''))
                                                 ");
 
             if ($kweri_sidang->num_rows() > 0) {
@@ -925,7 +925,7 @@ class M_waku extends CI_Model
                                                 left join $this->database.pihak f on e.pengacara_id = f.id
                                                 left join $this->database.perkara_pihak2 g on a.perkara_id=g.perkara_id
                                                 left join $this->database.pihak h on g.pihak_id=h.id
-                                                WHERE a.tanggal_sidang > CURDATE() and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>'')) LIMIT 50
+                                                WHERE a.tanggal_sidang > CURDATE() and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>''))
                                                 ");
 
             if ($kweri_sidang->num_rows() > 0) {
@@ -995,7 +995,7 @@ class M_waku extends CI_Model
                                                 left join $this->database.pihak f on e.pengacara_id = f.id
                                                 left join $this->database.perkara_pihak2 g on a.perkara_id=g.perkara_id
                                                 left join $this->database.pihak h on g.pihak_id=h.id
-                                                WHERE a.tanggal_sidang > CURDATE() and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>'')) LIMIT 50
+                                                WHERE a.tanggal_sidang > CURDATE() and ((f.telepon is not null and trim(f.telepon)<>'') or (h.telepon is not null and trim(h.telepon)<>''))
                                                 ");
 
             if ($kweri_sidang->num_rows() > 0) {
