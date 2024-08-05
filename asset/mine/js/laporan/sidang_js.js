@@ -43,6 +43,7 @@ $(document).ready(function(){
             {data:'tanggal_sidang'},
             {data:'jurusita_nama'},
             {data:'nomorhp'},
+            {data:'status'},
             {data:'dikirim'},
         ],
         columnDefs : [
@@ -61,7 +62,7 @@ $(document).ready(function(){
                 }
             },
             {
-                targets: 7,
+                targets: 8,
                 data: 'dikirim',
                 render: function(data,type,row,meta)
                 {

@@ -115,6 +115,7 @@
 												<th>NO. HP</th>
 												<th>NO. Akta Cerai</th>
 												<th>Pesan</th>
+												<th>Status</th>
 												<th>Dikirim</th>
 											</tr>
 										</thead>

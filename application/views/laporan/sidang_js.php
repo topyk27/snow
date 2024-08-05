@@ -115,6 +115,7 @@
                                                 <th>Tanggal Sidang</th>
                                                 <th>Nama</th>
                                                 <th>Nomor HP</th>
+                                                <th>Status</th>
                                                 <th>Dikirim</th>
                                             </tr>
                                         </thead>

@@ -43,6 +43,7 @@ $(document).ready(function(){
         {data: "nomor_hp"},
         {data: "nomor_ac"},
         {data: "pesan"},
+        {data: "status"},
         {data: "dikirim"},
         ],
         columnDefs : [
@@ -51,7 +52,7 @@ $(document).ready(function(){
             visible : false,
         },
         {
-            targets : [7],
+            targets : [8],
             data : "dikirim",
             render : function(data,type,row,meta){
                 var dateObj = new Date(data);
@@ -60,7 +61,7 @@ $(document).ready(function(){
             }
         },
         {
-            targets : [1,2,3,5,7],
+            targets : [1,2,3,5,8],
             responsivePriority : 1,
         }
         ],

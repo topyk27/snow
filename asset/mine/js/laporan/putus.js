@@ -41,7 +41,8 @@ $(document).ready(function(){
             {data: "tgl_putus"},
             {data: "jurusita_nama"},                    
             {data: "nomor_hp"},
-            {data: "pesan", sortable: false},                    
+            {data: "pesan", sortable: false},
+            {data: "status"},
             {data: "dikirim"},
         ],
         columnDefs : [
@@ -59,7 +60,7 @@ $(document).ready(function(){
                 }
             },
             {
-                targets: 7,
+                targets: 8,
                 data: "dikirim",
                 render: function(data,type,row,meta)
                 {

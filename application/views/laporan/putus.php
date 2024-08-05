@@ -115,6 +115,7 @@
                                                 <th>Nama</th>
                                                 <th>Nomor HP</th>
                                                 <th>Pesan</th>
+                                                <th>Status</th>
                                                 <th>Dikirim</th>
                                             </tr>
                                         </thead>

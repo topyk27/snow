@@ -65,8 +65,9 @@ class M_outbox extends CI_Model
 		$cek = $this->get_id_pesan_dan_tabel($id);
 		$tabel = $cek[0];
 		$id_pesan = $cek[1];
+		$status = $cek[2];
 		$tanggal = date("Y-m-d H:i:s");
-		$this->db->query("UPDATE $tabel SET dikirim = '$tanggal' WHERE id=$id_pesan");
+		$this->db->query("UPDATE $tabel SET dikirim = '$tanggal', status = '$status'  WHERE id=$id_pesan");
 		$this->db->delete("outbox", ["id" => $id]);
 		$respon['success'] = ($this->db->affected_rows() != 1) ? 0 : 1; 
 		echo json_encode($respon);
@@ -74,9 +75,9 @@ class M_outbox extends CI_Model
 
 	public function get_id_pesan_dan_tabel($id)
 	{
-		$row = $this->db->query("SELECT tabel,id_pesan FROM outbox WHERE ID=$id")->row();
+		$row = $this->db->query("SELECT tabel,id_pesan, status FROM outbox WHERE ID=$id")->row();
 
-		return [$row->tabel,$row->id_pesan];
+		return [$row->tabel,$row->id_pesan, $row->status];
 	}
 
 	public function isTesting()

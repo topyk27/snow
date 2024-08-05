@@ -43,6 +43,7 @@ $(document).ready(function(){
         {data: "pihak"},
         {data: "nomorhp"},
         {data: "pesan"},
+        {data: "status"},
         {data: "dikirim"},
         ],
         columnDefs : [
@@ -60,7 +61,7 @@ $(document).ready(function(){
             }
         },
         {
-            targets : [7],
+            targets : [8],
             data : "dikirim",
             render : function(data,type,row,meta){
                 var dateObj = new Date(data);
@@ -69,7 +70,7 @@ $(document).ready(function(){
             }
         },
         {
-            targets : [1,2,3,4,5,7],
+            targets : [1,2,3,4,5,8],
             responsivePriority : 1,
         }
         ],

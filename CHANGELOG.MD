@@ -8,6 +8,42 @@ All notable changes to this project will be documented in this file.
 - Notifikasi ditambahkan peringatan ke 1, 2 dst.
 - Notifikasi ke Ketua Majelis untuk putusan atau tundaan sidang juga
 
+## [2.2.0] - 2024-08-05
+### Chamged
+- Penambahan kolom status untuk tiap tabel pesan
+- Penambahan kolom status untuk laporan
+- Execute query di bawah in
+```
+-- DeliveryOK || SendingError
+ALTER TABLE `waku`.`akta_cerai`   
+  ADD COLUMN `status` VARCHAR(32) DEFAULT 'Reserved' NULL AFTER `dikirim`;
+
+ALTER TABLE `waku`.`perkara_daftar`   
+  ADD COLUMN `status` VARCHAR(32) DEFAULT 'Reserved' NULL AFTER `dikirim`;
+
+ALTER TABLE `waku`.`putus`   
+  ADD COLUMN `status` VARCHAR(32) DEFAULT 'Reserved' NULL AFTER `dikirim`;
+
+ALTER TABLE `waku`.`putus_pihak`   
+  ADD COLUMN `status` VARCHAR(32) DEFAULT 'Reserved' NULL AFTER `dikirim`;
+
+ALTER TABLE `waku`.`reminder_sipp`   
+  ADD COLUMN `status` VARCHAR(32) DEFAULT 'Reserved' NULL AFTER `peringatan_ke`;
+
+ALTER TABLE `waku`.`sidang`   
+  CHANGE `status` `status` VARCHAR(32) DEFAULT 'Reserved' NULL;
+
+ALTER TABLE `waku`.`sidang_jurusita`   
+  CHANGE `status` `status` VARCHAR(32) DEFAULT 'Reserved' NULL;
+
+ALTER TABLE `waku`.`sisa_panjar`   
+  ADD COLUMN `status` VARCHAR(32) DEFAULT 'DeliveryOK' NULL AFTER `dikirim`;
+
+UPDATE `waku`.`sidang` SET `status` = 'DeliveryOK';
+
+UPDATE `waku`.`sidang_jurusita` SET `status` = 'DeliveryOK';
+```
+
 ## [2.1.2] - 2023-11-16
 ### Changed
 - Tambahan link ke youtube untuk cara penggunaan drivethru
